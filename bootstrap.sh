@@ -76,13 +76,15 @@ setup_pixi() {
 	echo '''
   # Pixi setup
   export PATH='${PIXI_HOME}'/bin:${PATH}
-
-  case ${SHELL} in
-    *bash*|*zsh*)
-      eval "$(pixi completion --shell $(basename ${SHELL}))"
-    ;;
-  esac
   ''' >>${DOTFILES_RC}
+
+	local cmd=""
+	case ${SHELL_NAME} in
+	bash | zsh)
+		cmd='eval "$(pixi completion --shell '${SHELL_NAME}')"'
+		;;
+	esac
+	echo ${cmd} >>${DOTFILES_RC}
 
 	echo "Done"
 }
@@ -98,15 +100,16 @@ setup_essentials() {
 	echo '''
   # Essentials setup
   alias ls=lsd
-
-  case ${SHELL} in
-    *bash*|*zsh*)
-      eval "$(zoxide init $(basename ${SHELL}))"
-    ;;
-  esac
-
   alias cd=z
   ''' >>${DOTFILES_RC}
+
+	local cmd=""
+	case ${SHELL_NAME} in
+	bash | zsh)
+		cmd='eval "$(zoxide init '${SHELL_NAME}')"'
+		;;
+	esac
+	echo ${cmd} >>${DOTFILES_RC}
 
 	echo "Done"
 }
