@@ -46,9 +46,6 @@ on_setup_begin() {
 	done
 
 	echo '''
-  autoload -Uz compinit
-  compinit
-
   export PATH="'${LOCAL_BIN_ROOT}':${PATH}"
 
   for vsc in code code-insiders; do
@@ -58,6 +55,15 @@ on_setup_begin() {
       fi
   done
   ''' >>${DOTFILES_RC}
+
+	case ${SHELL_NAME} in
+	zsh)
+		echo '''
+      autoload -Uz compinit
+      compinit
+      ''' >>${DOTFILES_RC}
+		;;
+	esac
 }
 
 setup_pixi() {
