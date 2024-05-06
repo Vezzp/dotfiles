@@ -118,16 +118,18 @@ setup_starship() {
 	rm -f ${HOME_CONFIG_ROOT}/starship.toml
 	ln -sf ${LOCAL_CONFIG_ROOT}/starship.toml ${HOME}/.config/starship.toml
 
+	local cmd=""
+	case ${SHELL_NAME} in
+	bash | zsh)
+		cmd='eval "$(starship init '${SHELL_NAME}')"'
+		;;
+	esac
+
 	echo '''
   # Starship setup
-  case ${SHELL} in
-    *bash*|*zsh*)
-      eval "$(starship init $(basename ${SHELL}))"
-    ;;
-
-    *)
-      echo Cannot initialize starship for $(basename ${SHELL})
-  esac
+  if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
+    '${cmd}'
+  fi
   ''' >>${DOTFILES_RC}
 
 	echo "Done"
