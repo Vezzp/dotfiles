@@ -177,7 +177,11 @@ un_setup() {
 	grep -v "${shell_rc_init_cmd}" "${SHELL_RC}" >"${SHELL_RC}.bak" &&
 		mv "${SHELL_RC}.bak" "${SHELL_RC}"
 
-	unalias ls cd vsc &>/dev/null
+	(cat "${DOTFILES_RC}" |
+		grep alias |
+		awk -F "=" '{print $1}' |
+		awk -F " " '{print $2}' |
+		xargs unalias) &>/dev/null
 
 	rm -fr ${PIXI_HOME}
 
