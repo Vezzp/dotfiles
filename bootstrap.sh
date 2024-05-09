@@ -41,8 +41,14 @@ on_setup_begin() {
 		touch ${DOTFILES_RC}
 	fi
 
-	for filename in "${LOCAL_BIN_ROOT}/*"; do
-		chmod +x $filename
+	local filename=()
+	for filename in $(ls -1 "${LOCAL_BIN_ROOT}"); do
+		chmod +x ${LOCAL_BIN_ROOT}/${filename}
+	done
+
+	for filename in $(ls -1 "${LOCAL_CONFIG_ROOT}"); do
+		rm -rf ${HOME_CONFIG_ROOT}/${filename}
+		ln -sf ${LOCAL_CONFIG_ROOT}/${filename} ${HOME_CONFIG_ROOT}/${filename}
 	done
 
 	echo '''
@@ -75,6 +81,7 @@ setup_pixi() {
 
 	echo '''
   # Pixi setup
+  export PIXI_HOME='${PIXI_HOME}'
   export PATH='${PIXI_HOME}'/bin:${PATH}
   ''' >>${DOTFILES_RC}
 
@@ -95,7 +102,7 @@ pixi_install_packages() {
 
 setup_essentials() {
 	echo -n "   essentials ... "
-	pixi_install_packages "fd-find ripgrep lsdeluxe zoxide"
+	pixi_install_packages "fd-find ripgrep lsdeluxe zoxide nvim"
 
 	echo '''
   # Essentials setup
@@ -118,9 +125,6 @@ setup_starship() {
 	echo -n "   starship ... "
 	pixi_install_packages starship
 
-	rm -f ${HOME_CONFIG_ROOT}/starship.toml
-	ln -sf ${LOCAL_CONFIG_ROOT}/starship.toml ${HOME}/.config/starship.toml
-
 	local cmd=""
 	case ${SHELL_NAME} in
 	bash | zsh)
@@ -138,13 +142,9 @@ setup_starship() {
 	echo "Done"
 }
 
-setup_neovim() {
-	echo -n "   neovim ... "
-	pixi_install_packages nvim
-
-	rm -rf ${HOME_CONFIG_ROOT}/nvim
-	ln -sf ${LOCAL_CONFIG_ROOT}/nvim ${HOME_CONFIG_ROOT}/nvim
-
+setup_goodies() {
+	echo -n "   goodies ..."
+	pixi_install_packages ruff
 	echo "Done"
 }
 
@@ -160,7 +160,16 @@ on_setup_end() {
 	echo "All done"
 }
 
-un_setup() {
+install() {
+	on_setup_begin &&
+		setup_pixi &&
+		setup_essentials &&
+		setup_starship &&
+		setup_goodies &&
+		on_setup_end
+}
+
+uninstall() {
 	echo Uninstall will remove global pixi installation at ${PIXI_HOME} \
 		and delete dotfiles settings sourcing from ${SHELL_RC}
 	echo
@@ -194,7 +203,9 @@ un_setup() {
 		awk -F " " '{print $2}' |
 		xargs unalias) &>/dev/null
 
-	rm -fr ${PIXI_HOME}
+	for filename in $(ls -1 "${LOCAL_CONFIG_ROOT}"); do
+		rm -rf ${HOME_CONFIG_ROOT}/${filename}
+	done
 
 	echo '`source '${SHELL_RC}'` might be required for changes to take place'
 	echo "All done"
@@ -202,20 +213,15 @@ un_setup() {
 
 case $1 in
 install)
-	on_setup_begin &&
-		setup_pixi &&
-		setup_essentials &&
-		setup_starship &&
-		setup_neovim &&
-		on_setup_end
+	install
 	;;
 
 uninstall)
-	un_setup
+	uninstall
 	;;
 
 *)
-	echo Argument could be either $(install) or $(uninstall), got $(${1})
+	echo Argument could be either '`install`' or '`uninstall`', got '`'${1}'`'
 	exit 1
 	;;
 esac
