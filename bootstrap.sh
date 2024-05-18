@@ -107,6 +107,8 @@ setup_essentials() {
 	echo '''
   # Essentials setup
   alias ls=lsd
+  alias l='"ls -l"'
+  alias ll='"ls -l"'
   alias cd=z
   ''' >>${DOTFILES_RC}
 
@@ -143,8 +145,21 @@ setup_starship() {
 }
 
 setup_goodies() {
-	echo -n "   goodies ..."
+	echo -n "   goodies ... "
 	pixi_install_packages ruff
+	echo "Done"
+}
+
+setup_tmux() {
+	echo -n "   tmux ... "
+	pixi_install_packages tmux
+
+	local tpm_root=${HOME}/.tmux/plugins/tpm
+	if [ -d ${tpm_root} ]; then
+		rm -rf ${tpm_root}
+	fi
+	git clone -q https://github.com/tmux-plugins/tpm ${tpm_root}
+
 	echo "Done"
 }
 
@@ -166,6 +181,7 @@ install() {
 		setup_essentials &&
 		setup_starship &&
 		setup_goodies &&
+		setup_tmux &&
 		on_setup_end
 }
 
