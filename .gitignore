@@ -112,3 +112,4 @@ Temporary Items
 .apdisk
 
 /generated-dotfiles-rc
+!/config/tmux/tmux.conf
