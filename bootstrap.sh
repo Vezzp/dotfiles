@@ -159,6 +159,7 @@ setup_tmux() {
 		rm -rf ${tpm_root}
 	fi
 	git clone -q https://github.com/tmux-plugins/tpm ${tpm_root}
+	bash ${tpm_root}/bin/install_plugins &>/dev/null
 
 	echo "Done"
 }
