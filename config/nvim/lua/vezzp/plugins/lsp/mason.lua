@@ -21,13 +21,10 @@ return {
 
     mason_lspconfig.setup({
       ensure_installed = {
-        "html",
         "lua_ls",
         "pyright",
-        "clangd",
-        "gopls",
-        "ruff_lsp",
       },
+      automatic_installation = true,
     })
 
     local mason_tool_installer = require("mason-tool-installer")
@@ -35,7 +32,7 @@ return {
     mason_tool_installer.setup({
       ensure_installed = {
         "stylua",
-        "ruff",
+        "ruff_lsp",
         "shfmt",
       },
     })

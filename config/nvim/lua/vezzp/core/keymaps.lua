@@ -28,8 +28,8 @@ keymap.set("n", "<leader><Tab>w", "<cmd>tabnew %<CR>", { desc = "Open Current Wi
 
 -- renaming
 -- https://www.reddit.com/r/neovim/comments/14ej2pa/comment/jp3dz5m/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
-keymap.set({ "n" }, "<leader>rw", ":%s/<C-r><C-w>//g<left><left>", { desc = "Rename Word (Window)" })
+keymap.set("n", "<leader>rw", ":%s/<C-r><C-w>//g<left><left>", { desc = "Rename Word (Window)" })
 
-vim.keymap.set({ "n", "v" }, "<leader>rW", function()
+vim.keymap.set("n", "<leader>rW", function()
   return ":" .. vim.fn.line(".") .. "s/<C-r><C-w>//g<left><left><C-h>"
 end, { expr = true, desc = "Rename Word (Line)" })
