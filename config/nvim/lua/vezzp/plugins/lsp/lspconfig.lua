@@ -6,6 +6,9 @@ return {
     { "antosha417/nvim-lsp-file-operations", config = true },
     { "folke/neodev.nvim", opts = {} },
   },
+  opts = {
+    inlay_hints = { enabled = true },
+  },
   config = function()
     -- import lspconfig plugin
     local lspconfig = require("lspconfig")
@@ -85,17 +88,59 @@ return {
           capabilities = capabilities,
         })
       end,
+      ["basedpyright"] = function()
+        lspconfig["basedpyright"].setup({
+          capabilities = capabilities,
+          settings = {
+            basedpyright = {
+              analysis = {
+                inlayHints = {
+                  -- Common Pyright options
+                  variableTypes = true,
+                  pytestParameters = true,
+                  functionReturnTypes = true,
+                  typeCheckingMode = "basic",
+                  -- Exclusive Basedpyright options
+                  reportAny = false,
+                },
+              },
+            },
+          },
+        })
+      end,
+      ["gopls"] = function()
+        lspconfig["gopls"].setup({
+          capabilities = capabilities,
+          settings = {
+            gopls = {
+              hints = {
+                assignVariableTypes = true,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = true,
+                constantValues = true,
+                functionTypeParameters = true,
+                parameterNames = true,
+                rangeVariableTypes = true,
+              },
+            },
+          },
+        })
+      end,
       ["lua_ls"] = function()
         lspconfig["lua_ls"].setup({
           capabilities = capabilities,
           settings = {
             Lua = {
-              -- make the language server recognize "vim" global
               diagnostics = {
                 globals = { "vim" },
               },
               completion = {
                 callSnippet = "Replace",
+              },
+              hint = {
+                enable = true,
+                setType = true,
+                paramType = true,
               },
             },
           },
