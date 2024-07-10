@@ -33,3 +33,17 @@ keymap.set("n", "<leader>rw", ":%s/<C-r><C-w>//g<left><left>", { desc = "Rename 
 vim.keymap.set("n", "<leader>rW", function()
   return ":" .. vim.fn.line(".") .. "s/<C-r><C-w>//g<left><left><C-h>"
 end, { expr = true, desc = "Rename Word (Line)" })
+
+-- commenting, since neovim 0.10.0
+keymap.set("n", "<leader>/", "gcc", { desc = "Toggle Line Comment" })
+
+keymap.set("n", "<leader>ch", function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
+end, { desc = "Toggle Inlay Hints" })
+
+-- lsp
+if vim.lsp.inlay_hint then
+  keymap.set("n", "<leader>ch", function()
+    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
+  end, { desc = "Toggle Inlay Hints" })
+end
