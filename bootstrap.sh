@@ -112,13 +112,19 @@ setup_essentials() {
   alias cd=z
   ''' >>${DOTFILES_RC}
 
-	local cmd=""
 	case ${SHELL_NAME} in
-	bash | zsh)
-		cmd='eval "$(zoxide init '${SHELL_NAME}')"'
+	bash)
+		pixi_install_packages "bash-completion"
+		echo '''
+    eval "$(zoxide init '${SHELL_NAME}')"
+
+    . ${PIXI_HOME}/envs/bash_completion/share/bash_completion/bash_completion
+    ''' >>${DOTFILES_RC}
+		;;
+	zsh)
+		echo 'eval "$(zoxide init '${SHELL_NAME}')"' >>${DOTFILES_RC}
 		;;
 	esac
-	echo ${cmd} >>${DOTFILES_RC}
 
 	echo "Done"
 }
