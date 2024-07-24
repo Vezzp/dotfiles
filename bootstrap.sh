@@ -118,7 +118,7 @@ setup_essentials() {
 		echo '''
     eval "$(zoxide init '${SHELL_NAME}')"
 
-    . ${PIXI_HOME}/envs/bash_completion/share/bash_completion/bash_completion
+    . ${PIXI_HOME}/envs/bash-completion/share/bash-completion/bash_completion
     ''' >>${DOTFILES_RC}
 		;;
 	zsh)
