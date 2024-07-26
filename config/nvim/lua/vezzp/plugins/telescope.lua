@@ -28,9 +28,14 @@ return {
     local keymap = vim.keymap
 
     -- Find files
-    keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "File" })
-    keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Recent" })
-    keymap.set("n", "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", { desc = "Buffers" })
+    keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find Files" })
+    keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Find Recent Files" })
+    keymap.set(
+      "n",
+      "<leader>fb",
+      "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
+      { desc = "Find Buffers" }
+    )
 
     -- Search
     keymap.set("n", "<leader>sg", "<cmd>Telescope live_grep<cr>", { desc = "Grep" })
