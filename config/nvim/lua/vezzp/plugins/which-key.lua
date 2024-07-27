@@ -8,20 +8,19 @@ return {
   end,
   opts = {
     plugins = { spelling = true },
-    defaults = {
-      ["<leader>f"] = { "+file/find" },
-      ["<leader>w"] = { "+windows" },
-      ["<leader><tab>"] = { "+tabs" },
-      ["<leader>c"] = { "+code" },
-      ["<leader>s"] = { "+search" },
-      ["<leader>x"] = { "+diagnostics/quickfix" },
-      ["<leader>q"] = { "+quit/session" },
-      ["<leader>r"] = { "+rename" },
-    },
   },
   config = function(_, opts)
     local wk = require("which-key")
     wk.setup(opts)
-    wk.register(opts.defaults)
+    wk.add({
+      { "<leader>f", desc = "+file/find" },
+      { "<leader>w", desc = "+windows" },
+      { "<leader><tab>", desc = "+tabs" },
+      { "<leader>c", desc = "+code" },
+      { "<leader>s", desc = "+search" },
+      { "<leader>x", desc = "+diagnostics/quickfix" },
+      { "<leader>q", desc = "+quit/session" },
+      { "<leader>r", desc = "+rename" },
+    }, {})
   end,
 }
