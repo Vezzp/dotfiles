@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+# https://macos-defaults.com/
+
+echo -n "Setting up macOS ... "
+
+set -e
+
+osascript -e 'tell application "System Preferences" to quit'
+
+# ==========
+# Dock
+# ==========
+
+# Show active only
+defaults write com.apple.dock "static-only" -bool "true"
+
+# Don't show recents
+defaults write com.apple.dock "show-recents" -bool "false"
+
+# Tile size
+defaults write com.apple.dock "tilesize" -int "36"
+
+# Position
+defaults write com.apple.dock "orientation" -string "left"
+
+# Instant open
+defaults write com.apple.dock autohide-delay -float 0
+
+# Autohide
+defaults write com.apple.dock autohide -bool "true"
+
+# ==========
+# Finder
+# ==========
+
+# Show file extensions
+defaults write NSGlobalDomain "AppleShowAllExtensions" -bool "true"
+
+# Show full path
+defaults write com.apple.finder "ShowPathbar" -bool "true"
+
+# Keep folders on top
+defaults write com.apple.finder "_FXSortFoldersFirst" -bool "true"
+
+# ==========
+# Desktop
+# ==========
+
+# Do not show hard drives on Desktop
+defaults write com.apple.finder "ShowHardDrivesOnDesktop" -bool "false"
+
+# Do not show external hard drives on Desktop
+defaults write com.apple.finder "ShowExternalHardDrivesOnDesktop" -bool "false"
+
+# ==========
+# Mission Control
+# ==========
+
+# Group similar apps
+defaults write com.apple.dock "expose-group-apps" -bool "true"
+
+# ==========
+# Trackpad
+# ==========
+
+# Enabled three-finger drag
+defaults write com.apple.AppleMultitouchTrackpad "TrackpadThreeFingerDrag" -bool "true"
+
+# ==========
+# Accessability
+# ==========
+
+defaults write com.apple.Accessibility "ReduceMotionEnabled" -bool "true"
+
+# ==========
+# Text Edit
+# ==========
+
+# Disable auto quote substitution
+defaults write NSGlobalDomain "NSAutomaticQuoteSubstitutionEnabled" -bool "false"
+
+# Disable auto correction
+defaults write NSGlobalDomain "NSAutomaticSpellingCorrectionEnabled" -bool "false"
+
+# Disable auto capitalization
+defaults write NSGlobalDomain "NSAutomaticCapitalizationEnabled" -bool "false"
+
+# Disable auto dash substitution
+defaults write NSGlobalDomain "NSAutomaticDashSubstitutionEnabled" -bool "false"
+
+# Diable auto period substitution
+defaults write NSGlobalDomain "NSAutomaticPeriodSubstitutionEnabled" -bool "false"
+
+killall Dock
+killall Finder
+
+echo "Done"
