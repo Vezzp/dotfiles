@@ -11,4 +11,3 @@ if [ -f ${1} ]; then
 fi
 
 find $(realpath -s "${1}") -name '.git' -exec bash -c 'git config --global --add safe.directory $(dirname ${0%})' {} \;
-
