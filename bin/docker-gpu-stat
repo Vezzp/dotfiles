@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+# ruff: noqa: UP032
+# pyright: reportAny=false, reportUnusedCallResult=false
+
 import argparse
 import functools
 import itertools
@@ -21,6 +25,7 @@ if TYPE_CHECKING:
     Formatter = Callable[[str], str]
     _T = TypeVar("_T", bound=Any)
 else:
+
     class _TypedDict_Meta(type):  # noqa
         def __new__(cls, name, bases, namespace):
             annotations = namespace.get("__annotations__", {})
@@ -29,9 +34,7 @@ else:
             return type.__new__(cls, name, (dict,), {"__annotations__": annotations})
 
     def _TypedDict(name, annotations):  # noqa
-        return type.__new__(
-            _TypedDict_Meta, name, (dict,), {"__annotations__": annotations}
-        )
+        return type.__new__(_TypedDict_Meta, name, (dict,), {"__annotations__": annotations})
 
 
 NvidiaUnitStat = _TypedDict(
@@ -45,8 +48,7 @@ NvidiaAppStat = _TypedDict(
 )
 
 
-class NvidiaStat(NvidiaUnitStat, NvidiaAppStat):
-    ...
+class NvidiaStat(NvidiaUnitStat, NvidiaAppStat): ...
 
 
 DockerStat = _TypedDict(
@@ -55,7 +57,7 @@ DockerStat = _TypedDict(
 )
 
 
-def parse_docker_stats() -> list[DockerStat]:
+def parse_docker_stats() -> "list[DockerStat]":
     return parse_command_format(
         ["docker", "stats", "--no-stream", "--format"],
         DockerStat,
@@ -63,7 +65,7 @@ def parse_docker_stats() -> list[DockerStat]:
     )
 
 
-def parse_nvidia_stats() -> list[NvidiaStat]:
+def parse_nvidia_stats() -> "list[NvidiaStat]":
     nvidia_gpu_stats = parse_command_format(
         ["nvidia-smi", "--format=csv"],
         NvidiaUnitStat,
@@ -86,28 +88,25 @@ def parse_nvidia_stats() -> list[NvidiaStat]:
 
 
 def parse_command_format(
-    args, typ, col_arg_fmt="{}".format, query_arg_fmt="{}".format, header=False
-):
-    # type: (list[str], type[_T], Formatter, Formatter, bool) -> list[_T]
+    args: "list[str]",
+    typ: "type[_T]",
+    col_arg_fmt: "Formatter" = "{}".format,
+    query_arg_fmt: "Formatter" = "{}".format,
+    header: "bool" = False,
+) -> "list[_T]":
     command_output = subprocess.check_output(
         [*args, query_arg_fmt(",".join(map(col_arg_fmt, typ.__annotations__)))],
     ).decode()
     return [
-        typ(
-            dict(
-                zip(typ.__annotations__, map(str.strip, line.split(",")), strict=False)
-            )
-        )
+        typ(dict(zip(typ.__annotations__, map(str.strip, line.split(",")), strict=False)))
         for line in itertools.islice(command_output.splitlines(), int(header), None)
     ]
 
 
-def main() -> None:
+def main() -> "None":
     for command in ("docker", "nvidia-smi"):
         if shutil.which(command) is None:
-            sys.exit(
-                f"Cannot determine GPU stat, {command} prerequisite is not " "fulfilled"
-            )
+            sys.exit("Cannot determine GPU stat, {} prerequisite is not fulfilled".format(command))
 
     nvidia_stats = parse_nvidia_stats()
     docker_stats = parse_docker_stats()
@@ -115,16 +114,21 @@ def main() -> None:
     docker_cols = tuple(DockerStat.__annotations__)
     nvidia_cols = ("pid", "index", "used_memory")
 
-    rows: list[dict] = []
+    rows: list[dict[str, Any]] = []
     for docker_stat in docker_stats:
         container_id = docker_stat["Container"]
         try:
-            container_child_pids = subprocess.check_output(
-                ["docker", "top", container_id, "-eo", "pid"],
-                stderr=subprocess.DEVNULL,
-            ).decode().strip().splitlines()
+            container_child_pids = (
+                subprocess.check_output(
+                    ["docker", "top", container_id, "-eo", "pid"],
+                    stderr=subprocess.DEVNULL,
+                )
+                .decode()
+                .strip()
+                .splitlines()
+            )
         except Exception:
-            sys.stderr.write(f"Cannot examine container {container_id}, skipping ...\n")
+            sys.stderr.write("Cannot examine container {}, skipping ...\n".format(container_id))
             continue
 
         container_nvidia_stats = tuple(
@@ -145,9 +149,8 @@ def main() -> None:
         )
 
     @functools.lru_cache
-    def construct_col_formatter(width):
-        # type: (int) -> Formatter
-        def formatter(text):
+    def construct_col_formatter(width: int) -> "Formatter":
+        def formatter(text: str) -> str:
             if len(text) > width:
                 text = f"{text[:width]}..."
             return f"{text:>{width + 3}}"
@@ -169,16 +172,10 @@ def main() -> None:
         },
     )
 
-    col_delimeter = "\t"
     table = "\n".join(
         [
-            col_delimeter.join(col_to_formatter[col](col) for col in table_cols),
-            *[
-                col_delimeter.join(
-                    col_to_formatter[col](row[col]) for col in table_cols
-                )
-                for row in rows
-            ],
+            "\t".join(col_to_formatter[col](col) for col in table_cols),
+            *["\t".join(col_to_formatter[col](row[col]) for col in table_cols) for row in rows],
         ]
     )
     sys.stdout.write(table)
@@ -189,5 +186,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Show per process GPU usage inside Docker containers"
     )
-    _ = parser.parse_args()
+    parser.parse_args()
     main()
