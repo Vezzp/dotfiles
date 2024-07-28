@@ -111,6 +111,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-/generated-dotfiles-rc
 /config/tmux/*
 !/config/tmux/tmux.conf
+
+generated-rc
