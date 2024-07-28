@@ -11,6 +11,7 @@ import platform
 import shutil
 import stat
 import subprocess
+import tempfile
 import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -124,18 +125,17 @@ def setup_pixi() -> None:
         if curl_exe is None:
             raise RuntimeError("Cannot find curl")
 
-        tmp_path = Path("/tmp/__my_path.sh")
-        sh(
-            [
-                str(curl_exe),
-                "-fsSL",
-                "--output",
-                str(tmp_path),
-                "https://pixi.sh/install.sh",
-            ]
-        )
-        sh(["bash", str(tmp_path)])
-        tmp_path.unlink()
+        with tempfile.NamedTemporaryFile("w", suffix=".sh") as fout:
+            sh(
+                [
+                    str(curl_exe),
+                    "-fsSL",
+                    "--output",
+                    fout.name,
+                    "https://pixi.sh/install.sh",
+                ]
+            )
+            sh(["bash", fout.name])
 
     RC_BUILDER.write(
         """\
