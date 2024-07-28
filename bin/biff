@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# https://github.com/sharkdp/bat/issues/954
+diff $@ | bat -l diff
