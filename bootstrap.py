@@ -1,6 +1,6 @@
 #!:usr/bin/env python3
 
-# ruff: noqa: UP032, T201
+# ruff: noqa: UP032, T201, B028
 # pyright: reportAny=false, reportUnusedCallResult=false
 
 import argparse
@@ -13,6 +13,7 @@ import stat
 import subprocess
 import tempfile
 import textwrap
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -120,7 +121,7 @@ def on_setup_begin() -> None:
 
 @install_step
 def setup_pixi() -> None:
-    if shutil.which("pixi") is None:
+    if shutil.which("pixi") is None and not PIXI_EXE.exists():
         curl_exe = shutil.which("curl")
         if curl_exe is None:
             raise RuntimeError("Cannot find curl")
@@ -195,7 +196,7 @@ def setup_essentials() -> None:
         """\
         case $SHELL_NAME in
         bash)
-            . ${}/envs/bash-completion/share/bash-completion/bash_completion
+            . {}/envs/bash-completion/share/bash-completion/bash_completion
             ;;
         esac
         """.format(PIXI_HOME)
@@ -226,9 +227,25 @@ def setup_tmux() -> None:
     pixi_install_packages("tmux")
     tpm_home = Path.home().joinpath(".tmux/plugins/tpm")
     if not tpm_home.is_dir():
-        shutil.rmtree(tpm_home)
         sh(["git", "clone", "-q", "https://github.com/tmux-plugins/tpm", str(tpm_home)])
-    sh(["bash", str(tpm_home.joinpath("bin", "install_plugins"))])
+
+    cmd_parts = ["bash", str(tpm_home.joinpath("bin", "install_plugins"))]
+    try:
+        sh(
+            cmd_parts,
+            env={
+                **os.environ,
+                "TMUX_PLUGIN_MANAGER_PATH": os.environ.get(
+                    "TMUX_PLUGIN_MANAGER_PATH", str(tpm_home.parent)
+                ),
+            },
+        )
+    except Exception:
+        warnings.warn(
+            "Tmux plugin installation finished with error, try running {} manually".format(
+                " ".join(cmd_parts)
+            )
+        )
 
 
 @install_step
