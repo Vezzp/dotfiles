@@ -8,8 +8,12 @@ return {
         light = "latte",
         dark = "frappe",
       },
+      integrations = {
+        noice = true,
+        telescope = true,
+        nvimtree = true,
+      },
     })
-
     vim.cmd("colorscheme catppuccin")
-  end
+  end,
 }
