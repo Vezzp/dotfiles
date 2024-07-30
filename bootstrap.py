@@ -187,7 +187,7 @@ def setup_essentials() -> None:
         fi
 
         if [ ! -z $(which bat) ]; then
-            alias cat='bat --paging=never'
+            alias cat='bat --paging never --decorations never --plain'
         fi
         """
     )
