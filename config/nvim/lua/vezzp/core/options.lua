@@ -16,7 +16,6 @@ opt.autoindent = true
 
 opt.wrap = false
 
-
 -- ignore case during search
 opt.ignorecase = true
 
@@ -25,18 +24,16 @@ opt.smartcase = true
 
 opt.cursorline = true
 
-
 opt.termguicolors = true
 opt.background = "dark"
 opt.signcolumn = "yes"
 
-
 opt.backspace = "indent,eol,start"
-
 
 -- use system clipboard as a default register
 opt.clipboard:append("unnamedplus")
 
-
 opt.splitright = true
 opt.splitbelow = true
+
+opt.termsync = true
