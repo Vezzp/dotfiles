@@ -13,3 +13,8 @@ blur = true
 normal.family = "JuliaMono Nerd Font Mono"
 size = 24
 
+[keyboard]
+bindings = [
+  { key = "Right", mods = "Alt", chars = "\u001BF" },
+  { key = "Left",  mods = "Alt", chars = "\u001BB" },
+]
