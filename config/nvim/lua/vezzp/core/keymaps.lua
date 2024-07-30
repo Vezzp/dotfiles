@@ -2,6 +2,12 @@ vim.g.mapleader = " "
 
 local keymap = vim.keymap
 
+-- misc
+
+-- create an empty line below or above
+keymap.set("n", "oo", "O<Esc>k")
+keymap.set("n", "OO", "O<Esc>j")
+
 -- buffer management
 keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Split Window Vertically" })
 keymap.set("n", "<leader>w|", "<C-w>v", { desc = "Split Window Vertically" })
