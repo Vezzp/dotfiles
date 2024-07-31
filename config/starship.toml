@@ -1,21 +1,23 @@
 format = """
-[](#9A348E)\
+[󱎕](#9A348E)\
+$container\
 $os\
 $username\
-[](bg:#DA627D fg:#9A348E)\
+[ ](bg:#DA627D fg:#9A348E)\
 $directory\
-[](fg:#DA627D bg:#FCA17D)\
+[ ](fg:#DA627D bg:#FCA17D)\
 $git_branch\
 $git_status\
-[](fg:#FCA17D bg:#86BBD8)\
+$git_state\
+[ ](fg:#FCA17D bg:#86BBD8)\
+$conda\
 $golang\
 $python\
-$conda\
-[](fg:#86BBD8 bg:#06969A)\
+[ ](fg:#86BBD8 bg:#06969A)\
 $docker_context\
-[](fg:#06969A bg:#33658A)\
+[ ](fg:#06969A bg:#33658A)\
 $time\
-[](fg:#33658A)
+[ ](fg:#33658A)
  ❯ 
 """
 
@@ -28,56 +30,101 @@ $time\
 show_always = true
 style_user = "bg:#9A348E"
 style_root = "bg:#9A348E"
-format = '[$user ]($style)'
+format = '[ $user ]($style)'
 disabled = false
 
 # An alternative to the username module which displays a symbol that
 # represents the current operating system
 [os]
 style = "bg:#9A348E"
-format = "[$symbol $name $version ]($style)"
-disabled = false # Disabled by default
+format = "[$symbol$version]($style)"
+disabled = false
 
 [directory]
 style = "bg:#DA627D"
-format = "[ $path ]($style)"
+format = "[$path]($style)"
 truncate_to_repo = true
 truncation_length = 3
 truncation_symbol = "…/"
 
 [docker_context]
-symbol = "🐳 "
+symbol = " "
 style = "bg:#06969A"
-format = '[ $symbol $context ]($style) $path'
+format = '[$symbol$context]($style) $path'
 
 [git_branch]
-symbol = "🌳 "
+symbol = " "
 style = "bg:#FCA17D"
-format = '[ $symbol $branch ]($style)'
+format = '[$symbol$branch]($style)'
 
 [git_status]
 style = "bg:#FCA17D"
 format = '[$all_status$ahead_behind ]($style)'
 
 [golang]
-symbol = "🔵 "
+symbol = " "
 style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
+format = '[$symbol($version) ]($style)'
 
 [python]
-symbol = '🐍 '
+symbol = " "
 style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
+format = '[$symbol($version)]($style)'
 
 [conda]
-symbol = '👾 '
+symbol = " "
 ignore_base = false
 style = "bg:#86BBD8"
-format = '[ $symbol$environment ]($style)'
+format = '[$symbol$environment ]($style)'
 disabled = false
 
 [time]
 disabled = false
 time_format = "%R" # Hour:Minute Format
 style = "bg:#33658A"
-format = '[ ⌛ $time ]($style)'
+format = '[⌛$time ]($style)'
+ 
+[os.symbols]
+Alpaquita = " "
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+Arch = " "
+Artix = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Emscripten = " "
+ EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "󰛓 "
+Gentoo = " "
+HardenedBSD = "󰞌 "
+Illumos = "󰈸 "
+Kali = " "
+Linux = " "
+Mabox = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+OpenBSD = "󰈺 "
+openSUSE = " "
+OracleLinux = "󰌷 "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+Redox = "󰀘 "
+Solus = "󰠳 "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
+Windows = "󰍲 "
