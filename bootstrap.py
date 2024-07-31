@@ -239,6 +239,7 @@ def setup_tmux() -> None:
                     "TMUX_PLUGIN_MANAGER_PATH", str(tpm_home.parent)
                 ),
             },
+            cwd=tpm_home,
         )
     except Exception:
         warnings.warn(
