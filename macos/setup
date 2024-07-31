@@ -9,6 +9,14 @@ set -e
 osascript -e 'tell application "System Preferences" to quit'
 
 # ==========
+# Font
+# ==========
+
+# Allow think strokes
+# https://github.com/alacritty/alacritty/issues/4616#issuecomment-1236413444
+$ defaults write -g AppleFontSmoothing -int 0
+
+# ==========
 # Dock
 # ==========
 
