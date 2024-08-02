@@ -166,6 +166,7 @@ def setup_essentials() -> None:
         "bash-completion",
         "git",
         "bat",
+        "xclip",
     )
     RC_BUILDER.write(
         """\
