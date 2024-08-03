@@ -68,6 +68,9 @@ defaults write com.apple.finder "ShowExternalHardDrivesOnDesktop" -bool "false"
 # Group similar apps
 defaults write com.apple.dock "expose-group-apps" -bool "true"
 
+# Disable automatic window rearrangement
+defaults write com.apple.dock "mru-spaces" -bool "false"
+
 # ==========
 # Trackpad
 # ==========
@@ -99,6 +102,14 @@ defaults write NSGlobalDomain "NSAutomaticDashSubstitutionEnabled" -bool "false"
 
 # Diable auto period substitution
 defaults write NSGlobalDomain "NSAutomaticPeriodSubstitutionEnabled" -bool "false"
+
+# ==========
+# Text Edit
+# ==========
+
+# Use pre-Sonoma language switcher pop up
+# https://apple.stackexchange.com/a/468286
+defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0
 
 killall Dock
 killall Finder
