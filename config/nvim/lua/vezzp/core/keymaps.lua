@@ -5,7 +5,7 @@ local keymap = vim.keymap
 -- misc
 
 -- create an empty line below or above
-keymap.set("n", "oo", "O<Esc>k")
+keymap.set("n", "oo", "o<Esc>k")
 keymap.set("n", "OO", "O<Esc>j")
 
 -- buffer management

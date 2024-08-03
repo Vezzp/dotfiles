@@ -19,6 +19,9 @@ return {
         progress = {
           enabled = false,
         },
+        signature = {
+          enabled = false,
+        },
       },
       -- you can enable a preset for easier configuration
       presets = {
