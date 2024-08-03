@@ -5,8 +5,8 @@ local keymap = vim.keymap
 -- misc
 
 -- create an empty line below or above
-keymap.set("n", "oo", "o<Esc>k")
-keymap.set("n", "OO", "O<Esc>j")
+keymap.set("n", "to", "o<Esc>k")
+keymap.set("n", "tO", "O<Esc>j")
 
 -- buffer management
 keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Split Window Vertically" })
