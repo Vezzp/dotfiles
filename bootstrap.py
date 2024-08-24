@@ -1,4 +1,4 @@
-#!:usr/bin/env python3
+#!/usr/bin/env python3
 
 # ruff: noqa: UP032, T201, B028
 # pyright: reportAny=false, reportUnusedCallResult=false
@@ -38,6 +38,8 @@ REPO_BIN = REPO_HOME / "bin"
 REPO_CONFIG = REPO_HOME / "config"
 
 USER_CONFIG = Path.home() / ".config"
+if not USER_CONFIG.is_dir():
+    USER_CONFIG.mkdir(parents=True)
 
 PIXI_HOME = Path(os.environ.get("PIXI_HOME", Path.home().joinpath(".pixi"))).resolve()
 PIXI_EXE = PIXI_HOME.joinpath("bin", "pixi")
@@ -167,6 +169,7 @@ def setup_essentials() -> None:
         "git",
         "bat",
         "xclip",
+        "rsync",
     )
     RC_BUILDER.write(
         """\
