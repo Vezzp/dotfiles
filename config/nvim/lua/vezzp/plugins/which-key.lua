@@ -21,6 +21,7 @@ return {
       { "<leader>x", desc = "+diagnostics/quickfix" },
       { "<leader>q", desc = "+quit/session" },
       { "<leader>r", desc = "+rename" },
+      { "<leader>g", desc = "+git" },
     }, {})
   end,
 }
