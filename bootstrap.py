@@ -170,6 +170,7 @@ def setup_essentials() -> None:
         "bat",
         "xclip",
         "rsync",
+        "unzip",
     )
     RC_BUILDER.write(
         """\
