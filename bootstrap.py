@@ -15,7 +15,7 @@ import tempfile
 import textwrap
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, get_type_hints
 
 
 if TYPE_CHECKING:
@@ -86,16 +86,7 @@ def on_setup_begin() -> None:
     for exe_path in REPO_BIN.iterdir():
         exe_path.chmod(exe_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-    # Make symlinks from REPO_CONFIG items to USER_CONFIG items.
-    for repo_sub_config_path in REPO_CONFIG.iterdir():
-        user_sub_config_path = USER_CONFIG.joinpath(repo_sub_config_path.name)
-        if user_sub_config_path.exists() and not user_sub_config_path.is_symlink():
-            raise RuntimeError("{} is expected to be a symlink".format(user_sub_config_path))
-        user_sub_config_path.unlink(missing_ok=True)
-        user_sub_config_path.symlink_to(
-            repo_sub_config_path,
-            target_is_directory=repo_sub_config_path.is_dir(),
-        )
+    update_config_symlinks()
 
     RC_BUILDER.write('export PATH="{}:$PATH"'.format(REPO_BIN))
     RC_BUILDER.skipline()
@@ -119,6 +110,33 @@ def on_setup_begin() -> None:
         esac
         """
     )
+
+
+@install_step
+def update_config_symlinks() -> None:
+    """Update symlinks from repo config items to user config items."""
+    for repo_sub_config_path, user_sub_config_path in _get_repo_user_sub_config_symlinks():
+        user_sub_config_path.unlink(missing_ok=True)
+        user_sub_config_path.symlink_to(
+            repo_sub_config_path,
+            target_is_directory=repo_sub_config_path.is_dir(),
+        )
+
+
+def drop_config_symlinks():
+    """Drop symlinks from repo config items to user config items."""
+    for _, user_sub_config_path in _get_repo_user_sub_config_symlinks():
+        user_sub_config_path.unlink(missing_ok=True)
+
+
+def _get_repo_user_sub_config_symlinks() -> list[tuple[Path, Path]]:
+    out: list[tuple[Path, Path]] = []
+    for repo_sub_config_path in REPO_CONFIG.iterdir():
+        user_sub_config_path = USER_CONFIG.joinpath(repo_sub_config_path.name)
+        if user_sub_config_path.exists() and not user_sub_config_path.is_symlink():
+            raise RuntimeError("{} is expected to be a symlink".format(user_sub_config_path))
+        out.append((repo_sub_config_path, user_sub_config_path))
+    return out
 
 
 @install_step
@@ -351,15 +369,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    subparsers = parser.add_subparsers()
+    main_subparsers = parser.add_subparsers(dest="main_cmd")
 
-    install_parser = subparsers.add_parser(
+    install_parser = main_subparsers.add_parser(
         "install", aliases=["i"], help="Install all packages and update shell-rc file"
     )
     add_shell_argument(install_parser)
     install_parser.set_defaults(handler=install_handler)
 
-    uninstall_parser = subparsers.add_parser(
+    uninstall_parser = main_subparsers.add_parser(
         "uninstall",
         aliases=["u"],
         help="Uninstall all packages and update shell-rc file",
@@ -367,6 +385,27 @@ if __name__ == "__main__":
     add_shell_argument(uninstall_parser)
     uninstall_parser.set_defaults(handler=uninstall_handler)
 
+    config_parser = main_subparsers.add_parser(
+        "config",
+        help="User config manipulation",
+    )
+    config_subparsers = config_parser.add_subparsers(
+        dest="config_cmd",
+    )
+
+    config_update_parser = config_subparsers.add_parser(
+        "update",
+        help="Update user config symlinks associated with repo",
+    )
+    config_update_parser.set_defaults(handler=update_config_symlinks)
+
+    config_remove_parser = config_subparsers.add_parser(
+        "remove", help="Remove user config symlinks associated with repo"
+    )
+    config_remove_parser.set_defaults(handler=drop_config_symlinks)
+
     args = parser.parse_args()
 
-    args.handler(args.guess_shell)
+    args.handler(
+        **{key: getattr(args, key) for key in get_type_hints(args.handler) if key != "return"}
+    )
