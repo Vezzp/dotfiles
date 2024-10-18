@@ -38,6 +38,9 @@ defaults write com.apple.dock autohide-delay -float 0
 # Autohide
 defaults write com.apple.dock autohide -bool "true"
 
+# Effect
+defaults write com.apple.dock "mineffect" -string "scale"
+
 # ==========
 # Finder
 # ==========
