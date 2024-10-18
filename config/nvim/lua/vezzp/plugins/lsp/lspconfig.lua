@@ -118,6 +118,14 @@ return {
                 parameterNames = true,
                 rangeVariableTypes = true,
               },
+              analyses = {
+                unreachable = true,
+                unusedvariable = true,
+                unusedparams = true,
+                nilness = true,
+              },
+              staticcheck = true,
+              gofumpt = true,
             },
           },
         })
