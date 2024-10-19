@@ -12,7 +12,6 @@ import shutil
 import stat
 import subprocess
 import tempfile
-import textwrap
 import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING, get_type_hints
@@ -22,100 +21,53 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Any
 
-    from typing_extensions import ParamSpec, TypeVar, override
+    from typing_extensions import ParamSpec, TypeVar
 
     _P = ParamSpec("_P")
     _R = TypeVar("_R")
 
-else:
-
-    def override(obj: "_R") -> "_R":
-        return obj
-
 
 REPO_HOME = Path(__file__).parent.resolve()
 REPO_BIN = REPO_HOME / "bin"
-REPO_CONFIG = REPO_HOME / "config"
+REPO_CONFIG_HOME = REPO_HOME / "config"
+REPO_STATIC_RC_ADDON_PATH = REPO_HOME.joinpath("static-rc-addon.sh")
+REPO_GENERATED_RC_ADDON_PATH = REPO_HOME.joinpath("generated-rc-addon.sh")
 
-USER_CONFIG = Path.home() / ".config"
-if not USER_CONFIG.is_dir():
-    USER_CONFIG.mkdir(parents=True)
+USER_CONFIG_HOME = Path(os.environ.get("CONFIG_HOME", Path.home() / ".config"))
+if not USER_CONFIG_HOME.is_dir():
+    USER_CONFIG_HOME.mkdir(parents=True)
 
 PIXI_HOME = Path(os.environ.get("PIXI_HOME", Path.home().joinpath(".pixi"))).resolve()
 PIXI_EXE = PIXI_HOME.joinpath("bin", "pixi")
 
-INSTALL_STEP_FNS: "list[Callable[..., Any]]" = []
+INSTALL_STEPS: "list[Callable[..., Any]]" = []
+UNINSTALL_STEPS: "list[Callable[..., Any]]" = []
 
-
-class StringBuilder(io.StringIO):
-    def skipline(self) -> None:
-        self.write("\n")
-
-    @override
-    def write(self, s: str) -> int:
-        return super().write(textwrap.dedent(s))
-
-
-RC_BUILDER = StringBuilder()
-RC_PATH = REPO_HOME.joinpath("generated-rc")
-RC_SOURCE_COMMAND = "source {}".format(RC_PATH)
+RC_SOURCE_COMMAND = ". {}".format(REPO_GENERATED_RC_ADDON_PATH)
 
 
 def install_step(fn: "Callable[_P, _R]") -> "Callable[_P, _R]":
-    INSTALL_STEP_FNS.append(fn)
+    INSTALL_STEPS.append(fn)
     return fn
 
 
-sh = functools.partial(
-    subprocess.check_call,
-    # stdout=subprocess.DEVNULL,
-    # stderr=subprocess.DEVNULL,
-)
+def uninstall_step(fn: "Callable[_P, _R]") -> "Callable[_P, _R]":
+    UNINSTALL_STEPS.append(fn)
+    return fn
 
 
-def pixi_install_packages(*packages: str) -> None:
-    assert len(packages) != 0
-    if not PIXI_EXE.exists():
-        raise RuntimeError("pixi was not installed properly")
-    sh([str(PIXI_EXE), "global", "install", "-q", *packages])
+sh = functools.partial(subprocess.check_call)
 
 
-@install_step
-def on_setup_begin() -> None:
-    # Make files in REPO_BIN executable for everyone, chmod +x.
-    for exe_path in REPO_BIN.iterdir():
-        exe_path.chmod(exe_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-    update_config_symlinks()
-
-    RC_BUILDER.write('export PATH="{}:$PATH"'.format(REPO_BIN))
-    RC_BUILDER.skipline()
-
-    RC_BUILDER.write(
-        """\
-        SHELL_NAME=$(basename $SHELL)
-
-        for vsc in code code-insiders; do
-            if [ ! -z $(which $vsc) ]; then
-                alias vsc=$vsc
-                break
-            fi
-        done
-
-        case $SHELL_NAME in
-        zsh)
-            autoload -Uz compinit
-            compinit
-            ;;
-        esac
-        """
-    )
+# ----------
+# Steps
+# ----------
 
 
 @install_step
 def update_config_symlinks() -> None:
     """Update symlinks from repo config items to user config items."""
-    for repo_sub_config_path, user_sub_config_path in _get_repo_user_sub_config_symlinks():
+    for repo_sub_config_path, user_sub_config_path in get_repo_user_sub_config_symlinks():
         user_sub_config_path.unlink(missing_ok=True)
         user_sub_config_path.symlink_to(
             repo_sub_config_path,
@@ -123,25 +75,17 @@ def update_config_symlinks() -> None:
         )
 
 
+@uninstall_step
 def drop_config_symlinks():
     """Drop symlinks from repo config items to user config items."""
-    for _, user_sub_config_path in _get_repo_user_sub_config_symlinks():
+    for _, user_sub_config_path in get_repo_user_sub_config_symlinks():
         user_sub_config_path.unlink(missing_ok=True)
-
-
-def _get_repo_user_sub_config_symlinks() -> list[tuple[Path, Path]]:
-    out: list[tuple[Path, Path]] = []
-    for repo_sub_config_path in REPO_CONFIG.iterdir():
-        user_sub_config_path = USER_CONFIG.joinpath(repo_sub_config_path.name)
-        if user_sub_config_path.exists() and not user_sub_config_path.is_symlink():
-            raise RuntimeError("{} is expected to be a symlink".format(user_sub_config_path))
-        out.append((repo_sub_config_path, user_sub_config_path))
-    return out
 
 
 @install_step
 def setup_pixi() -> None:
-    if shutil.which("pixi") is None and not PIXI_EXE.exists():
+    which_pixi = shutil.which("pixi")
+    if which_pixi is None and not PIXI_EXE.exists():
         curl_exe = shutil.which("curl")
         if curl_exe is None:
             raise RuntimeError("Cannot find curl")
@@ -158,19 +102,10 @@ def setup_pixi() -> None:
             )
             sh(["bash", fout.name])
 
-    RC_BUILDER.write(
-        """\
-        # Pixi setup
-        export PIXI_HOME={pixi_home}
-        export PATH={pixi_home}/bin:$PATH
-
-        case $SHELL_NAME in
-        bash | zsh)
-            eval "$(pixi completion --shell $SHELL_NAME)"
-            ;;
-        esac
-        """.format(pixi_home=PIXI_HOME)
-    )
+    else:
+        warnings.warn(
+            "Existing pixi installation found at {}".format(which_pixi or PIXI_HOME), stacklevel=0
+        )
 
 
 @install_step
@@ -189,59 +124,7 @@ def setup_essentials() -> None:
         "xclip",
         "rsync",
         "unzip",
-    )
-    RC_BUILDER.write(
-        """\
-        # Essentials setup
-        if [ ! -z $(which lsd) ]; then
-           alias ls=lsd
-           alias l='ls -l'
-           alias la='ls -a'
-           alias lla='ls -la'
-           alias lt='ls --tree'
-        fi
-
-        if [ ! -z $(which zoxide) ]; then
-            case $SHELL_NAME in
-            bash | zsh)
-                eval "$(zoxide init $SHELL_NAME)"
-                ;;
-            esac
-        fi
-
-        if [ ! -z $(which bat) ]; then
-            alias cat='bat --paging=never --decorations=never'
-        fi
-        """
-    )
-    RC_BUILDER.skipline()
-    RC_BUILDER.write(
-        """\
-        case $SHELL_NAME in
-        bash)
-            . {}/envs/bash-completion/share/bash-completion/bash_completion
-            ;;
-        esac
-        """.format(PIXI_HOME)
-    )
-
-
-@install_step
-def setup_starship() -> None:
-    pixi_install_packages("starship")
-    RC_BUILDER.write(
-        """\
-        # Starship setup
-        if [ ! -z $(which starship) ]; then
-            if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
-                case $SHELL_NAME in
-                bash | zsh)
-                    eval "$(starship init $SHELL_NAME)"
-                    ;;
-                esac
-            fi
-        fi
-        """
+        "starship",
     )
 
 
@@ -277,16 +160,38 @@ def install_goodies() -> None:
     pixi_install_packages("ruff")
 
 
-def install_handler(guess_shell: bool) -> None:
+@install_step
+def generate_rc_addon() -> None:
+    with REPO_GENERATED_RC_ADDON_PATH.open("w") as fout:
+        fout.write(
+            "\n".join(
+                [
+                    "export PATH={}:$PATH".format(REPO_BIN),
+                    "export PIXI_HOME={}".format(PIXI_HOME),
+                    "export PATH={}/bin:$PATH".format(PIXI_HOME),
+                    REPO_STATIC_RC_ADDON_PATH.read_text(),
+                ]
+            )
+        )
+
+
+# ----------
+# Main handlers
+# ----------
+
+
+def install(guess_shell: bool) -> None:
     print("Installing dotfiles ...")
+
     if platform.system() == "Darwin":
         sh(["bash", "macos/setup"])
 
-    for install_step_fn in INSTALL_STEP_FNS:
-        install_step_fn()
-        RC_BUILDER.skipline()
+    # Make files in REPO_BIN executable for everyone, chmod +x.
+    for exe_path in REPO_BIN.iterdir():
+        exe_path.chmod(exe_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-    RC_PATH.write_text(RC_BUILDER.getvalue())
+    for install_step_fn in INSTALL_STEPS:
+        install_step_fn()
 
     shell_rc = guess_shell_rc() if guess_shell else None
     if shell_rc is None:
@@ -299,14 +204,39 @@ def install_handler(guess_shell: bool) -> None:
         print("Updated {}".format(shell_rc))
 
 
-def uninstall_handler(guess_shell: bool) -> None:
+def uninstall(guess_shell: bool) -> None:
     print("Uninstalling dotfiles ...")
     shell_rc = guess_shell_rc() if guess_shell else None
     if shell_rc is None:
-        print("Cannot guess RC-file, remove {} from it manually".format(RC_SOURCE_COMMAND))
+        warnings.warn("Cannot guess RC-file, remove {} from it manually".format(RC_SOURCE_COMMAND))
     else:
         drop_line_from_file(shell_rc, RC_SOURCE_COMMAND)
         print("Updated {}".format(shell_rc))
+
+    for uninstall_step_fn in INSTALL_STEPS:
+        uninstall_step_fn()
+
+
+# ----------
+# Utils
+# ----------
+
+
+def pixi_install_packages(*packages: str) -> None:
+    assert len(packages) != 0
+    if not PIXI_EXE.exists():
+        raise RuntimeError("pixi was not installed properly")
+    sh([str(PIXI_EXE), "global", "install", "-q", *packages])
+
+
+def get_repo_user_sub_config_symlinks() -> list[tuple[Path, Path]]:
+    out: list[tuple[Path, Path]] = []
+    for repo_sub_config_path in REPO_CONFIG_HOME.iterdir():
+        user_sub_config_path = USER_CONFIG_HOME.joinpath(repo_sub_config_path.name)
+        if user_sub_config_path.exists() and not user_sub_config_path.is_symlink():
+            raise RuntimeError("{} is expected to be a symlink".format(user_sub_config_path))
+        out.append((repo_sub_config_path, user_sub_config_path))
+    return out
 
 
 def guess_shell_rc() -> "Path | None":
@@ -334,14 +264,14 @@ def guess_shell_name() -> "str | None":
 
 def drop_line_from_file(path: Path, line: str) -> None:
     line = line.strip()
-    builder = StringBuilder()
+    builder = io.StringIO()
     line_found = False
     for line_ in map(str.strip, path.open().readlines()):
         if line_ == line:
             line_found = True
         else:
             builder.write(line_)
-            builder.skipline()
+            builder.write("\n")
 
     if not line_found:
         return
@@ -375,7 +305,7 @@ if __name__ == "__main__":
         "install", aliases=["i"], help="Install all packages and update shell-rc file"
     )
     add_shell_argument(install_parser)
-    install_parser.set_defaults(handler=install_handler)
+    install_parser.set_defaults(handler=install)
 
     uninstall_parser = main_subparsers.add_parser(
         "uninstall",
@@ -383,15 +313,10 @@ if __name__ == "__main__":
         help="Uninstall all packages and update shell-rc file",
     )
     add_shell_argument(uninstall_parser)
-    uninstall_parser.set_defaults(handler=uninstall_handler)
+    uninstall_parser.set_defaults(handler=uninstall)
 
-    config_parser = main_subparsers.add_parser(
-        "config",
-        help="User config manipulation",
-    )
-    config_subparsers = config_parser.add_subparsers(
-        dest="config_cmd",
-    )
+    config_parser = main_subparsers.add_parser("config", help="Manipulate user config")
+    config_subparsers = config_parser.add_subparsers(dest="config_cmd")
 
     config_update_parser = config_subparsers.add_parser(
         "update",
@@ -404,8 +329,13 @@ if __name__ == "__main__":
     )
     config_remove_parser.set_defaults(handler=drop_config_symlinks)
 
-    args = parser.parse_args()
+    rc_parser = main_subparsers.add_parser("rc", help="Manipulate RC file")
+    rc_subparsers = rc_parser.add_subparsers(dest="rc_cmd")
 
+    rc_generate_parser = rc_subparsers.add_parser("generate", help="Generate RC addon")
+    rc_generate_parser.set_defaults(handler=generate_rc_addon)
+
+    args = parser.parse_args()
     args.handler(
         **{key: getattr(args, key) for key in get_type_hints(args.handler) if key != "return"}
     )

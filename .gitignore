@@ -114,4 +114,4 @@ Temporary Items
 /config/tmux/*
 !/config/tmux/tmux.conf
 
-generated-rc
+generated-rc-addon.sh
