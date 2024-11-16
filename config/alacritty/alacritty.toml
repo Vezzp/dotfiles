@@ -10,7 +10,7 @@ opacity = 0.8
 blur = true
 
 [font]
-normal.family = "FiraCode Nerd Font Mono"
+normal.family = "ZedMono Nerd Font Mono"
 size = 24
 
 [keyboard]
