@@ -32,7 +32,7 @@ return {
     mason_tool_installer.setup({
       ensure_installed = {
         "stylua",
-        "ruff_lsp",
+        "ruff",
         "shfmt",
       },
     })
