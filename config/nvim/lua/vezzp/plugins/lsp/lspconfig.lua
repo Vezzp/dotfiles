@@ -66,11 +66,9 @@ return {
       end,
     })
 
-    -- used to enable autocompletion (assign to every lsp server config)
     local capabilities = cmp_nvim_lsp.default_capabilities()
 
     -- Change the Diagnostic symbols in the sign column (gutter)
-    -- (not in youtube nvim video)
     local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
     for type, icon in pairs(signs) do
       local hl = "DiagnosticSign" .. type
@@ -84,26 +82,51 @@ return {
           capabilities = capabilities,
         })
       end,
+
+      ["clangd"] = function()
+        lspconfig["clangd"].setup({
+          filetypes = { "c", "cpp", "cuda" },
+          capabilities = capabilities,
+          root_dir = function(fname)
+            return require("lspconfig.util").root_pattern(
+              "Makefile",
+              "configure.ac",
+              "configure.in",
+              "config.h.in",
+              "meson.build",
+              "meson_options.txt",
+              "build.ninja"
+            )(fname) or require("lspconfig.util").root_pattern(
+              "CMakeLists.txt",
+              "compile_commands.json",
+              "compile_flags.txt",
+              ".clangd"
+            )(fname) or vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
+          end,
+        })
+      end,
+
       ["basedpyright"] = function()
-        lspconfig["basedpyright"].setup({
+        lspconfig["bsedpyright"].setup({
           capabilities = capabilities,
           settings = {
-            basedpyright = {
+            asedpyright = {
               analysis = {
+                typeCheckingMode = "basic",
+                -- Exclusive Bsedpyright options
+                reportAny = false,
                 inlayHints = {
                   -- Common Pyright options
                   variableTypes = true,
                   pytestParameters = true,
                   functionReturnTypes = true,
-                  typeCheckingMode = "basic",
-                  -- Exclusive Basedpyright options
-                  reportAny = false,
                 },
               },
             },
           },
         })
       end,
+
       ["gopls"] = function()
         lspconfig["gopls"].setup({
           capabilities = capabilities,
@@ -130,6 +153,7 @@ return {
           },
         })
       end,
+
       ["lua_ls"] = function()
         lspconfig["lua_ls"].setup({
           capabilities = capabilities,
@@ -150,6 +174,22 @@ return {
           },
         })
       end,
+    })
+
+    lspconfig["buf_ls"].setup({
+      filetypes = { "proto" },
+      capabilities = capabilities,
+    })
+
+    lspconfig["sourcekit"].setup({
+      filetypes = { "swift" },
+      capabilities = {
+        workspace = {
+          didChangeWatchedFiles = {
+            dynamicRegistration = true,
+          },
+        },
+      },
     })
   end,
 }
