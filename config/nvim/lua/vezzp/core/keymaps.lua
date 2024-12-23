@@ -24,11 +24,8 @@ keymap.set("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close Current Window" 
 keymap.set("n", "<leader><Tab><Tab>", "<cmd>tabnew<CR>", { desc = "New Tab" })
 keymap.set("n", "<leader><Tab>x", "<cmd>tabclose<CR>", { desc = "Close Current Tab" })
 
-keymap.set("n", "<leader><Tab>n", "<cmd>tabn<CR>", { desc = "Next Tab" })
-keymap.set("n", "<leader><Tab>]", "<cmd>tabn<CR>", { desc = "Next Tab" })
-
-keymap.set("n", "<leader><Tab>p", "<cmd>tabp<CR>", { desc = "Previous Tab" })
-keymap.set("n", "<leader><Tab>[", "<cmd>tabp<CR>", { desc = "Previous Tab" })
+keymap.set("n", "<leader><Tab>l", "<cmd>tabn<CR>", { desc = "Next Tab" })
+keymap.set("n", "<leader><Tab>h", "<cmd>tabp<CR>", { desc = "Previous Tab" })
 
 keymap.set("n", "<leader><Tab>w", "<cmd>tabnew %<CR>", { desc = "Open Current Window in Tab" })
 
@@ -42,7 +39,7 @@ end, { expr = true, desc = "Rename Word (Line)" })
 
 -- lsp inlay hints since neovim 0.10.0
 if vim.lsp.inlay_hint then
-  keymap.set("n", "<leader>ch", function()
+  keymap.set("n", "<leader>cH", function()
     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
   end, { desc = "Toggle Inlay Hints" })
 end

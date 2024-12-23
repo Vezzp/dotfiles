@@ -44,22 +44,20 @@ return {
         opts.desc = "Rename with LSP"
         keymap.set("n", "<leader>cr", vim.lsp.buf.rename, opts)
 
+        opts.desc = "Show Documentation under Cursor"
+        keymap.set("n", "<leader>ch", vim.lsp.buf.hover, opts)
+
         opts.desc = "Show Buffer Diagnostics"
-        keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
+        keymap.set("n", "<leader>dd", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
 
         opts.desc = "Show Line Diagnostics"
-        keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
+        keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
 
         opts.desc = "Go to Previous Diagnostic"
-        keymap.set("n", "<leader>xn", vim.diagnostic.goto_prev, opts)
-        keymap.set("n", "<leader>x]", vim.diagnostic.goto_prev, opts)
+        keymap.set("n", "<leader>dk", vim.diagnostic.goto_prev, opts)
 
         opts.desc = "Go to Next Diagnostic"
-        keymap.set("n", "<leader>xp", vim.diagnostic.goto_next, opts)
-        keymap.set("n", "<leader>x[", vim.diagnostic.goto_next, opts)
-
-        opts.desc = "Show Documentation under Cursor"
-        keymap.set("n", "K", vim.lsp.buf.hover, opts)
+        keymap.set("n", "<leader>dj", vim.diagnostic.goto_next, opts)
 
         opts.desc = "Restart LSP"
         keymap.set("n", "<leader>R", ":LspRestart<CR>", opts)
@@ -107,7 +105,7 @@ return {
       end,
 
       ["basedpyright"] = function()
-        lspconfig["bsedpyright"].setup({
+        lspconfig["basedpyright"].setup({
           capabilities = capabilities,
           settings = {
             asedpyright = {

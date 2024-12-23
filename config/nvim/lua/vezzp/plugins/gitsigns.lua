@@ -10,8 +10,8 @@ return {
       end
 
       -- Navigation
-      map("n", "<leader>g]", gs.next_hunk, "Next Hunk")
-      map("n", "<leader>g[", gs.prev_hunk, "Prev Hunk")
+      map("n", "<leader>gj", gs.next_hunk, "Next Hunk")
+      map("n", "<leader>gk", gs.prev_hunk, "Prev Hunk")
 
       -- Actions
       map("n", "<leader>gs", gs.stage_hunk, "Stage Hunk")
