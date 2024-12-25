@@ -34,7 +34,7 @@ keymap.set("n", "<leader><Tab>w", "<cmd>tabnew %<CR>", { desc = "Open Current Wi
 keymap.set("n", "<leader>rw", ":%s/<C-r><C-w>//g<left><left>", { desc = "Rename Word (Window)" })
 
 vim.keymap.set("n", "<leader>rW", function()
-  return ":" .. vim.fn.line(".") .. "s/<C-r><C-w>//g<left><left><C-h>"
+  return ":" .. vim.fn.line(".") .. "s/<C-r><C-w>//g<left><left>"
 end, { expr = true, desc = "Rename Word (Line)" })
 
 -- lsp inlay hints since neovim 0.10.0
