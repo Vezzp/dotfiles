@@ -11,16 +11,12 @@ keymap.set("n", "to", "o<Esc>k")
 keymap.set("n", "tO", "O<Esc>j")
 
 -- buffer management
-keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Split Window Vertically" })
 keymap.set("n", "<leader>w|", "<C-w>v", { desc = "Split Window Vertically" })
-
-keymap.set("n", "<leader>wh", "<C-w>s", { desc = "Split Window Horizontally" })
 keymap.set("n", "<leader>w-", "<C-w>s", { desc = "Split Window Horizontally" })
-
-keymap.set("n", "<leader>we", "<C-w>=", { desc = "Equalize Split Window Size" })
 keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equalize Split Window Size" })
-
 keymap.set("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close Current Window" })
+keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Next Window" })
+keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Previous Window" })
 
 -- tab management
 keymap.set("n", "<leader><Tab><Tab>", "<cmd>tabnew<CR>", { desc = "New Tab" })
