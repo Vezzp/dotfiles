@@ -37,6 +37,16 @@ vim.keymap.set("n", "<leader>rW", function()
   return ":" .. vim.fn.line(".") .. "s/<C-r><C-w>//g<left><left>"
 end, { expr = true, desc = "Rename Word (Line)" })
 
+vim.keymap.set("n", "<leader>rc", function()
+  local clipboard = vim.fn.getreg("*")
+  return ":%s/" .. clipboard .. "//gc<left><left><left>"
+end, { expr = true, desc = "Rename Clipboard Sequence (Window)" })
+
+vim.keymap.set("n", "<leader>rC", function()
+  local clipboard = vim.fn.getreg("*")
+  return ":" .. vim.fn.line(".") .. "s/" .. clipboard .. "//g<left><left>"
+end, { expr = true, desc = "Rename Clipboard Sequence (Line)" })
+
 -- lsp inlay hints since neovim 0.10.0
 if vim.lsp.inlay_hint then
   keymap.set("n", "<leader>cH", function()
