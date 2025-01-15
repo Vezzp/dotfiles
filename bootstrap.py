@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ruff: noqa: UP032, T201, B028
-# pyright: reportAny=false, reportUnusedCallResult=false
+# pyright: reportAny=false, reportUnusedCallResult=false, reportExplicitAny=false
 
 import argparse
 import functools
@@ -125,6 +125,7 @@ def setup_essentials() -> None:
         "rsync",
         "unzip",
         "starship",
+        "tree-sitter-cli",
     )
 
 
