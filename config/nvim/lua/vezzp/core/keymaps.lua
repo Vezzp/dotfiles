@@ -2,14 +2,6 @@ vim.g.mapleader = " "
 
 local keymap = vim.keymap
 
--- misc
-keymap.set("n", "<Tab>", ">", { desc = "Do Indentation" })
-keymap.set("n", "<S-Tab>", "<", { desc = "Undo Indentation" })
-
--- create an empty line below or above
-keymap.set("n", "to", "o<Esc>k")
-keymap.set("n", "tO", "O<Esc>j")
-
 -- buffer management
 keymap.set("n", "<leader>w|", "<C-w>v", { desc = "Split Window Vertically" })
 keymap.set("n", "<leader>w-", "<C-w>s", { desc = "Split Window Horizontally" })
