@@ -38,7 +38,9 @@ if not USER_CONFIG_HOME.is_dir():
     USER_CONFIG_HOME.mkdir(parents=True)
 
 PIXI_HOME = Path(os.environ.get("PIXI_HOME", Path.home().joinpath(".pixi"))).resolve()
-PIXI_EXE = PIXI_HOME.joinpath("bin", "pixi")
+PIXI_EXE = Path(
+    os.environ.get("PIXI_HOME", shutil.which("pixi") or PIXI_HOME.joinpath("bin", "pixi"))
+)
 
 INSTALL_STEPS: "list[Callable[..., Any]]" = []
 UNINSTALL_STEPS: "list[Callable[..., Any]]" = []
@@ -84,8 +86,7 @@ def drop_config_symlinks():
 
 @install_step
 def setup_pixi() -> None:
-    which_pixi = shutil.which("pixi")
-    if which_pixi is None and not PIXI_EXE.exists():
+    if not PIXI_EXE.exists():
         curl_exe = shutil.which("curl")
         if curl_exe is None:
             raise RuntimeError("Cannot find curl")
@@ -103,9 +104,7 @@ def setup_pixi() -> None:
             sh(["bash", fout.name])
 
     else:
-        warnings.warn(
-            "Existing pixi installation found at {}".format(which_pixi or PIXI_HOME), stacklevel=0
-        )
+        warnings.warn("Existing pixi installation found at {}".format(PIXI_EXE), stacklevel=0)
 
 
 @install_step
@@ -230,7 +229,7 @@ def pixi_install_packages(*packages: str) -> None:
     sh([str(PIXI_EXE), "global", "install", "-q", *packages])
 
 
-def get_repo_user_sub_config_symlinks() -> list[tuple[Path, Path]]:
+def get_repo_user_sub_config_symlinks() -> "list[tuple[Path, Path]]":
     out: list[tuple[Path, Path]] = []
     for repo_sub_config_path in REPO_CONFIG_HOME.iterdir():
         user_sub_config_path = USER_CONFIG_HOME.joinpath(repo_sub_config_path.name)
