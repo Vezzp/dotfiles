@@ -179,6 +179,11 @@ return {
       capabilities = capabilities,
     })
 
+    lspconfig["yamlls"].setup({
+      filetypes = { "yaml", "yml" },
+      capabilities = capabilities,
+    })
+
     lspconfig["sourcekit"].setup({
       filetypes = { "swift" },
       capabilities = {
