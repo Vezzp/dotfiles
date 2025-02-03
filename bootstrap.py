@@ -39,7 +39,7 @@ if not USER_CONFIG_HOME.is_dir():
 
 PIXI_HOME = Path(os.environ.get("PIXI_HOME", Path.home().joinpath(".pixi"))).resolve()
 PIXI_EXE = Path(
-    os.environ.get("PIXI_HOME", shutil.which("pixi") or PIXI_HOME.joinpath("bin", "pixi"))
+    os.environ.get("PIXI_EXE", shutil.which("pixi") or PIXI_HOME.joinpath("bin", "pixi"))
 )
 
 INSTALL_STEPS: "list[Callable[..., Any]]" = []
