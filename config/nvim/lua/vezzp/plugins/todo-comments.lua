@@ -8,13 +8,13 @@ return {
 
     local keymap = vim.keymap
 
-    keymap.set("n", "]t", function()
+    keymap.set("n", "mlt", function()
       todo_comments.jump_next()
-    end, { desc = "Next todo comment" })
+    end, { desc = "Go to Next TODO Comment" })
 
-    keymap.set("n", "[t", function()
+    keymap.set("n", "mht", function()
       todo_comments.jump_prev()
-    end, { desc = "Previous todo comment" })
+    end, { desc = "Go to Prev TODO Comment" })
 
     todo_comments.setup()
   end,

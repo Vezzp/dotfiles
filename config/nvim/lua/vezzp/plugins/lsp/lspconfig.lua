@@ -41,10 +41,10 @@ return {
         opts.desc = "Show Available Actions"
         keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 
-        opts.desc = "Rename with LSP"
+        opts.desc = "Rename With LSP"
         keymap.set("n", "<leader>cr", vim.lsp.buf.rename, opts)
 
-        opts.desc = "Show Documentation under Cursor"
+        opts.desc = "Show Documentation Under Cursor"
         keymap.set("n", "<leader>ch", vim.lsp.buf.hover, opts)
 
         opts.desc = "Show Buffer Diagnostics"
@@ -53,7 +53,7 @@ return {
         opts.desc = "Show Line Diagnostics"
         keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
 
-        opts.desc = "Go to Previous Diagnostic"
+        opts.desc = "Go to Prev Diagnostic"
         keymap.set("n", "<leader>dk", vim.diagnostic.goto_prev, opts)
 
         opts.desc = "Go to Next Diagnostic"

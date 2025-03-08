@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-# ruff: noqa: UP032, T201, B028
+# ruff: noqa: UP032, T201, B028, UP037
 # pyright: reportAny=false, reportUnusedCallResult=false, reportExplicitAny=false
-
 import argparse
 import functools
 import io

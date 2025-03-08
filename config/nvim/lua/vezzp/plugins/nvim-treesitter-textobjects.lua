@@ -8,87 +8,76 @@ return {
       textobjects = {
         select = {
           enable = true,
-
-          -- Automatically jump forward to textobj, similar to targets.vim
           lookahead = true,
-
           keymaps = {
-            -- You can use the capture groups defined in textobjects.scm
-            ["a="] = { query = "@assignment.outer", desc = "Select outer part of an assignment" },
-            ["i="] = { query = "@assignment.inner", desc = "Select inner part of an assignment" },
-            ["l="] = { query = "@assignment.lhs", desc = "Select left hand side of an assignment" },
-            ["r="] = { query = "@assignment.rhs", desc = "Select right hand side of an assignment" },
+            ["a="] = { query = "@assignment.outer", desc = "Select Outer Assignment Part" },
+            ["i="] = { query = "@assignment.inner", desc = "Select Inner Assignment Part" },
+            ["l="] = { query = "@assignment.lhs", desc = "Select LHS Assignment Part" },
+            ["r="] = { query = "@assignment.rhs", desc = "Select RHS Assignment Part" },
 
-            ["aa"] = { query = "@parameter.outer", desc = "Select outer part of a parameter/argument" },
-            ["ia"] = { query = "@parameter.inner", desc = "Select inner part of a parameter/argument" },
+            ["aa"] = { query = "@parameter.outer", desc = "Select Outer Argument Part" },
+            ["ia"] = { query = "@parameter.inner", desc = "Select Inner Argument Part" },
 
-            ["ai"] = { query = "@conditional.outer", desc = "Select outer part of a conditional" },
-            ["ii"] = { query = "@conditional.inner", desc = "Select inner part of a conditional" },
+            ["ai"] = { query = "@conditional.outer", desc = "Select Outer Conditional Part" },
+            ["ii"] = { query = "@conditional.inner", desc = "Select Inner Conditional Part" },
 
-            ["al"] = { query = "@loop.outer", desc = "Select outer part of a loop" },
-            ["il"] = { query = "@loop.inner", desc = "Select inner part of a loop" },
+            ["al"] = { query = "@loop.outer", desc = "Select Outer Loop Part" },
+            ["il"] = { query = "@loop.inner", desc = "Select Inner Loop Part" },
 
-            ["af"] = { query = "@call.outer", desc = "Select outer part of a function call" },
-            ["if"] = { query = "@call.inner", desc = "Select inner part of a function call" },
+            ["ac"] = { query = "@call.outer", desc = "Select Outer Function Call Part" },
+            ["ic"] = { query = "@call.inner", desc = "Select Inner Function Call Part" },
 
-            ["am"] = { query = "@function.outer", desc = "Select outer part of a method/function definition" },
-            ["im"] = { query = "@function.inner", desc = "Select inner part of a method/function definition" },
+            ["af"] = { query = "@function.outer", desc = "Select Outer Function Part" },
+            ["if"] = { query = "@function.inner", desc = "Select Inner Function Part" },
 
-            ["ac"] = { query = "@class.outer", desc = "Select outer part of a class" },
-            ["ic"] = { query = "@class.inner", desc = "Select inner part of a class" },
+            ["as"] = { query = "@class.outer", desc = "Select Outer Class Part" },
+            ["is"] = { query = "@class.inner", desc = "Select Inner Class Part" },
 
-            ["a/"] = { query = "@comment.outer", desc = "Select outer part of a comment" },
-            ["i/"] = { query = "@comment.inner", desc = "Select inner part of a comment" },
+            ["a/"] = { query = "@comment.outer", desc = "Select Outer Comment Part" },
+            ["i/"] = { query = "@comment.inner", desc = "Select Inner Comment Part" },
           },
         },
         swap = {
           enable = true,
           swap_next = {
-            ["<leader>na"] = "@parameter.inner", -- swap parameters/argument with next
-            ["<leader>n:"] = "@property.outer", -- swap object property with next
-            ["<leader>nm"] = "@function.outer", -- swap function with next
+            ["mspl"] = { query = "@parameter.outer", desc = "Swap Next Parameter with Current" },
+            ["msfl"] = { query = "@function.outer", desc = "Swap Next Function with Current" },
           },
           swap_previous = {
-            ["<leader>pa"] = "@parameter.inner", -- swap parameters/argument with prev
-            ["<leader>p:"] = "@property.outer", -- swap object property with prev
-            ["<leader>pm"] = "@function.outer", -- swap function with previous
+            ["msph"] = { query = "@parameter.outer", desc = "Swap Prev Parameter with Current" },
+            ["msfh"] = { query = "@function.outer", desc = "Swap Prev Function with Current" },
           },
         },
         move = {
           enable = true,
-          set_jumps = true, -- whether to set jumps in the jumplist
+          set_jumps = true,
           goto_next_start = {
-            ["]f"] = { query = "@call.outer", desc = "Next function call start" },
-            ["]m"] = { query = "@function.outer", desc = "Next method/function def start" },
-            ["]c"] = { query = "@class.outer", desc = "Next class start" },
-            ["]i"] = { query = "@conditional.outer", desc = "Next conditional start" },
-            ["]l"] = { query = "@loop.outer", desc = "Next loop start" },
-
-            -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
-            -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
-            ["]s"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
-            ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
+            ["mlck"] = { query = "@call.outer", desc = "Go to Next Function Call Start" },
+            ["mlfk"] = { query = "@function.outer", desc = "Go to Next Function Def Start" },
+            ["mlsk"] = { query = "@class.outer", desc = "Go to Next Struct Start" },
+            ["mlik"] = { query = "@conditional.outer", desc = "Go to Next Conditional Start" },
+            ["mllk"] = { query = "@loop.outer", desc = "Go to Next Loop Start" },
           },
           goto_next_end = {
-            ["]F"] = { query = "@call.outer", desc = "Next function call end" },
-            ["]M"] = { query = "@function.outer", desc = "Next method/function def end" },
-            ["]C"] = { query = "@class.outer", desc = "Next class end" },
-            ["]I"] = { query = "@conditional.outer", desc = "Next conditional end" },
-            ["]L"] = { query = "@loop.outer", desc = "Next loop end" },
+            ["mlcj"] = { query = "@call.outer", desc = "Go to Next Function Call End" },
+            ["mlfj"] = { query = "@function.outer", desc = "Go to Next Function Def End" },
+            ["mlsj"] = { query = "@class.outer", desc = "Go to Next Struct End" },
+            ["mlij"] = { query = "@conditional.outer", desc = "Go to Next Conditional End" },
+            ["mllj"] = { query = "@loop.outer", desc = "Go to Next Loop End" },
           },
           goto_previous_start = {
-            ["[f"] = { query = "@call.outer", desc = "Prev function call start" },
-            ["[m"] = { query = "@function.outer", desc = "Prev method/function def start" },
-            ["[c"] = { query = "@class.outer", desc = "Prev class start" },
-            ["[i"] = { query = "@conditional.outer", desc = "Prev conditional start" },
-            ["[l"] = { query = "@loop.outer", desc = "Prev loop start" },
+            ["mhck"] = { query = "@call.outer", desc = "Go to Prev Function Call Start" },
+            ["mhfk"] = { query = "@function.outer", desc = "Go to Prev Function Def Start" },
+            ["mhsk"] = { query = "@class.outer", desc = "Go to Prev Struct Start" },
+            ["mhik"] = { query = "@conditional.outer", desc = "Go to Prev Conditional Start" },
+            ["mhlk"] = { query = "@loop.outer", desc = "Go to Prev Loop Start" },
           },
           goto_previous_end = {
-            ["[F"] = { query = "@call.outer", desc = "Prev function call end" },
-            ["[M"] = { query = "@function.outer", desc = "Prev method/function def end" },
-            ["[C"] = { query = "@class.outer", desc = "Prev class end" },
-            ["[I"] = { query = "@conditional.outer", desc = "Prev conditional end" },
-            ["[L"] = { query = "@loop.outer", desc = "Prev loop end" },
+            ["mhcj"] = { query = "@call.outer", desc = "Go to Prev Function Call End" },
+            ["mhfj"] = { query = "@function.outer", desc = "Go to Prev Function Def End" },
+            ["mhsj"] = { query = "@class.outer", desc = "Go to Prev Struct End" },
+            ["mhij"] = { query = "@conditional.outer", desc = "Go to Prev Conditional End" },
+            ["mhlj"] = { query = "@loop.outer", desc = "Go to Prev Loop End" },
           },
         },
       },
