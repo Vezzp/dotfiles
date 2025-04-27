@@ -3,6 +3,7 @@
 format = """
 [](#9A348E)\
 $container\
+${custom.tmux}\
 $os\
 $username\
 [ ](bg:#DA627D fg:#9A348E)\
@@ -37,6 +38,12 @@ disabled = false
 
 [container]
 symbol = " "
+style = "bg:#9A348E"
+format = '[$symbol]($style)'
+
+[custom.tmux]
+when = """ test -n "$TMUX" """
+symbol = "󱃣 "
 style = "bg:#9A348E"
 format = '[$symbol]($style)'
 
