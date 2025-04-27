@@ -40,6 +40,7 @@ return {
       "latex",
       "proto",
       "bash",
+      "markdown_inline",
     },
   },
   config = function(_, opts)

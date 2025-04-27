@@ -10,6 +10,7 @@ return {
         python = { "ruff_format" },
         sh = { "shfmt" },
         toml = { "taplo" },
+        tex = { "tex-fmt" },
       },
       format_on_save = {
         lsp_fallback = true,
