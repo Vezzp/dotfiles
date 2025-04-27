@@ -1,0 +1,7 @@
+theme = dark:catppuccin-frappe,light:catppuccin-latte
+font-size = 20
+font-thicken = true
+background-opacity = 0.9
+background-blur-radius = 20
+window-theme = auto
+font-family = FiraCode Nerd Font Mono
