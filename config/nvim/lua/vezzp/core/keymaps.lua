@@ -43,3 +43,21 @@ if vim.lsp.inlay_hint then
     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({}))
   end, { desc = "Toggle Inlay Hints" })
 end
+
+vim.keymap.set("n", "<leader>tl", function()
+  vim.o.background = "light"
+end, { desc = "Switch to Light Theme" })
+
+vim.keymap.set("n", "<leader>td", function()
+  vim.o.background = "dark"
+end, { desc = "Switch to Dark Theme" })
+
+vim.keymap.set("n", "<leader>tt", function()
+  if vim.o.background == "dark" then
+    vim.o.background = "light"
+  else
+    vim.o.background = "dark"
+  end
+end, { desc = "Toggle Inverted Theme" })
+
+vim.keymap.set("n", "<leader>ts", "<cmd>Telescope colorscheme<cr>", { desc = "Find Theme" })
