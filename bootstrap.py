@@ -124,6 +124,7 @@ def setup_essentials() -> None:
         "unzip",
         "starship",
         "tree-sitter-cli",
+        "ncurses",
     )
 
 
@@ -168,6 +169,9 @@ def generate_rc_addon() -> None:
                     "export PATH={}:$PATH".format(REPO_BIN),
                     "export PIXI_HOME={}".format(PIXI_HOME),
                     "export PATH={}/bin:$PATH".format(PIXI_HOME),
+                    "export TERMINFO_DIRS=$TERMINFO_DIRS:${}/envs/ncurses/share/terminfo/".format(
+                        PIXI_HOME
+                    ),
                     REPO_STATIC_RC_ADDON_PATH.read_text(),
                 ]
             )
