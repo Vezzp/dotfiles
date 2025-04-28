@@ -38,7 +38,10 @@ opt.splitbelow = true
 
 opt.termsync = true
 
-if (vim.env.SSH_TTY or vim.env.XDG_SESSION_TYPE == "tty") and vim.env.TMUX == nil then
+if
+  (vim.env.SSH_TTY or vim.env.XDG_SESSION_TYPE == "tty" or (vim.fn.has("unix") and vim.env.XDG_SESSION_TYPE == nil))
+  and vim.env.TMUX == nil
+then
   vim.g.clipboard = {
     name = "OSC 52",
     copy = {
