@@ -26,6 +26,8 @@ if TYPE_CHECKING:
     _R = TypeVar("_R")
 
 
+TERM = os.environ.get("TERM", "xterm-ghostty")
+
 REPO_HOME = Path(__file__).parent.resolve()
 REPO_BIN = REPO_HOME / "bin"
 REPO_CONFIG_HOME = REPO_HOME / "config"
@@ -163,15 +165,19 @@ def install_goodies() -> None:
 @install_step
 def generate_rc_addon() -> None:
     with REPO_GENERATED_RC_ADDON_PATH.open("w") as fout:
+        terminfo_dirs = []
+        if os.environ.get("TERMINFO_DIRS") is not None:
+            terminfo_dirs.append("$TERMINFO_DIRS")
+        terminfo_dirs.append("{}/envs/ncurses/share/terminfo/".format(PIXI_HOME))
+
         fout.write(
             "\n".join(
                 [
                     "export PATH={}:$PATH".format(REPO_BIN),
                     "export PIXI_HOME={}".format(PIXI_HOME),
                     "export PATH={}/bin:$PATH".format(PIXI_HOME),
-                    "export TERMINFO_DIRS=$TERMINFO_DIRS:${}/envs/ncurses/share/terminfo/".format(
-                        PIXI_HOME
-                    ),
+                    "export TERM={}".format(TERM),
+                    "export TERMINFO_DIRS={}".format(":".join(terminfo_dirs)),
                     REPO_STATIC_RC_ADDON_PATH.read_text(),
                 ]
             )
