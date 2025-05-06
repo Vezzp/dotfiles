@@ -9,6 +9,7 @@ keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equalize Split Window Size" })
 keymap.set("n", "<leader>wx", "<cmd>close<CR>", { desc = "Close Current Window" })
 keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Next Window" })
 keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Prev Window" })
+keymap.set("n", "<leader>wr", "<cmd>e %<CR>", { desc = "Reload Current Window" })
 
 -- tab management
 keymap.set("n", "<leader><Tab><Tab>", "<cmd>tabnew<CR>", { desc = "New Tab" })
