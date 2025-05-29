@@ -79,6 +79,7 @@ return {
 
     vim.lsp.enable("buf_ls")
     vim.lsp.enable("yamlls")
+    vim.lsp.enable("ruff")
 
     vim.lsp.enable("lua_ls")
     vim.lsp.config("lua_ls", {
