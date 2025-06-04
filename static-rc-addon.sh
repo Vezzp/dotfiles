@@ -48,6 +48,10 @@ bash)
   ;;
 esac
 
+if [ -d "${PIXI_HOME}/envs/nodejs/bin" ]; then
+  export PATH="${PATH}:${PIXI_HOME}/envs/nodejs/bin"
+fi
+
 if [ ! -z $(which starship) ]; then
   if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
     case $__SHELL_NAME in
