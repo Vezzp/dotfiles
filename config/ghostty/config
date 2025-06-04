@@ -1,7 +1,11 @@
 theme = dark:catppuccin-frappe,light:catppuccin-latte
-font-size = 20
+font-size = 14
 font-thicken = true
 background-opacity = 0.9
-background-blur-radius = 20
+background-blur-radius = 10
 window-theme = auto
-font-family = FiraCode Nerd Font Mono
+
+# This one will allow to use c+h to move between tmux panes
+# https://github.com/christoomey/vim-tmux-navigator/issues/421
+keybind = ctrl+h=esc:[104;5u
+keybind = shift+enter=text:\n
