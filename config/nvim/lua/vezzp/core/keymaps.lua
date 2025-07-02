@@ -61,4 +61,6 @@ vim.keymap.set("n", "<leader>tt", function()
   end
 end, { desc = "Toggle Inverted Theme" })
 
+vim.keymap.set("n", "<leader>wz", "<cmd>ZenMode<CR>", { desc = "Toggle Zen Mode" })
+
 vim.keymap.set("n", "<leader>ts", "<cmd>Telescope colorscheme<cr>", { desc = "Find Theme" })
