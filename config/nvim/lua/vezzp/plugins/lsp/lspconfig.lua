@@ -68,9 +68,6 @@ return {
         keymap.set("n", "<leader>dj", function()
           vim.diagnostic.jump({ count = 1, float = true })
         end, opts)
-
-        opts.desc = "Restart LSP"
-        keymap.set("n", "<leader>R", ":LspRestart<CR>", opts)
       end,
     })
 
@@ -101,6 +98,15 @@ return {
     })
 
     vim.lsp.enable("sourcekit")
+    vim.lsp.config("sourcekit", {
+      capabilities = vim.tbl_deep_extend("keep", capabilities, {
+        workspace = {
+          didChangeWatchedFiles = {
+            dynamicRegistration = true,
+          },
+        },
+      }),
+    })
 
     vim.lsp.enable("gopls")
     vim.lsp.config("gopls", {
@@ -157,8 +163,7 @@ return {
           "config.h.in",
           "meson.build",
           "meson_options.txt",
-          "build.ninja"
-        )(fname) or require("lspconfig.util").root_pattern(
+          "build.ninja",
           "CMakeLists.txt",
           "compile_commands.json",
           "compile_flags.txt",
