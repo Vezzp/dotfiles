@@ -32,8 +32,10 @@ defaults write com.apple.dock "tilesize" -int "36"
 # Position
 defaults write com.apple.dock "orientation" -string "left"
 
-# Instant open
-defaults write com.apple.dock autohide-delay -float 0
+# Autohide delay
+# Since I do not use the Dock and there is no non-hacky way to disable it,
+# it is easier not to display it at all for some long period of time
+defaults write com.apple.dock autohide-delay -float 1000
 
 # Autohide
 defaults write com.apple.dock autohide -bool "true"
