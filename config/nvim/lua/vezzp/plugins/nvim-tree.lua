@@ -12,6 +12,7 @@ return {
       view = {
         width = 35,
         relativenumber = true,
+        side = "right",
       },
       renderer = {
         indent_markers = {
@@ -26,7 +27,9 @@ return {
           },
         },
       },
-      -- disable window_picker for explorer to work well with window splits
+      hijack_directories = {
+        enable = false,
+      },
       actions = {
         open_file = {
           window_picker = {
