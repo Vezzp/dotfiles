@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# ruff: noqa: UP032, T201, B028, UP037
+# ruff: noqa: UP032, T201, B028
 # pyright: reportAny=false, reportUnusedCallResult=false, reportExplicitAny=false
 import argparse
 import functools
@@ -34,7 +34,7 @@ REPO_CONFIG_HOME = REPO_HOME / "config"
 REPO_STATIC_RC_ADDON_PATH = REPO_HOME.joinpath("static-rc-addon.sh")
 REPO_GENERATED_RC_ADDON_PATH = REPO_HOME.joinpath("generated-rc-addon.sh")
 
-USER_CONFIG_HOME = Path(os.environ.get("CONFIG_HOME", Path.home() / ".config"))
+USER_CONFIG_HOME = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
 if not USER_CONFIG_HOME.is_dir():
     USER_CONFIG_HOME.mkdir(parents=True)
 
