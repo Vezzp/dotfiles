@@ -13,6 +13,7 @@ $git_branch\
 $git_status\
 $git_state\
 [ ](fg:yellow bg:green)\
+$pixi\
 $conda\
 $golang\
 $python\
@@ -199,18 +200,23 @@ symbol = " "
 style = "bg:green fg:crust"
 format = '[$symbol($version)]($style)'
 
+[pixi]
+symbol = "󱡄 "
+style = "bg:green fg:crust"
+format = '[$symbol$environment ]($style)'
+detect_files = []
+
 [conda]
 symbol = " "
 ignore_base = false
 style = "bg:green fg:crust"
 format = '[$symbol$environment ]($style)'
-disabled = false
 
 [time]
 disabled = false
 time_format = "%R"             # Hour:Minute Format
 style = "bg:lavender fg:crust"
-format = '[⌛$time ]($style)'
+format = '[$time ]($style)'
 
 [os.symbols]
 Alpaquita = " "
