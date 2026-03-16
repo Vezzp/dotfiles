@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# macOS
+if command -v pbcopy >/dev/null 2>&1; then
+  exec pbcopy
+fi
+
+# Wayland
+if [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
+  exec wl-copy
+fi
+
+# X11
+if [ -n "${DISPLAY:-}" ] && command -v xclip >/dev/null 2>&1; then
+  exec xclip -selection clipboard
+fi
+
+# OSC52 fallback (requires terminal)
+if [ -t 1 ]; then
+  b64=$(base64 | tr -d '\r\n')
+
+  if [ -n "${TMUX:-}" ]; then
+    printf '\033Ptmux;\033\033]52;c;%s\a\033\\' "$b64"
+  else
+    printf '\033]52;c;%s\a' "$b64"
+  fi
+
+  exit 0
+fi
+
+echo "no clipboard backend available" >&2
+exit 1

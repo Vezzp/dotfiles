@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# macOS
+command -v pbpaste >/dev/null 2>&1 && exec pbpaste
+command -v wl-paste >/dev/null 2>&1 && exec wl-paste
+command -v xclip >/dev/null 2>&1 && exec xclip -selection clipboard -o
+command -v xsel >/dev/null 2>&1 && exec xsel --clipboard --output
+
+if [ -n "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1; then
+  exec tmux save-buffer -
+fi
+
+echo "no clipboard backend available" >&2
+exit 1
