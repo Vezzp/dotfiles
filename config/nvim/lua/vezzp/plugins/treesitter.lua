@@ -1,31 +1,25 @@
 return {
   "nvim-treesitter/nvim-treesitter",
-  event = { "BufReadPre", "BufNewFile" },
+  branch = "main",
+  lazy = false,
   build = ":TSUpdate",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects",
-  },
-  opts = {
-    modules = {},
-    auto_install = true,
-    ignore_install = {},
-    sync_install = false,
-    highlight = {
-      enable = true,
-    },
-    indent = { enable = true },
-    autotag = {
-      enable = true,
-    },
-    ensure_installed = {
+  config = function()
+    local treesitter = require("nvim-treesitter")
+
+    -- Use git instead of curl for downloading parsers (more reliable)
+    require("nvim-treesitter.install").prefer_git = true
+
+    local parsers = {
       "json",
       "yaml",
       "html",
       "toml",
       "markdown",
+      "markdown_inline",
       "bash",
       "lua",
       "vim",
+      "vimdoc",
       "dockerfile",
       "gitignore",
       "c",
@@ -39,11 +33,18 @@ return {
       "python",
       "latex",
       "proto",
-      "bash",
-      "markdown_inline",
-    },
-  },
-  config = function(_, opts)
-    require("nvim-treesitter.configs").setup(opts)
+    }
+
+    treesitter.install(parsers)
+
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "*",
+      callback = function()
+        if vim.treesitter.language.get_lang(vim.bo.filetype) then
+          pcall(vim.treesitter.start)
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end
+      end,
+    })
   end,
 }
