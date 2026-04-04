@@ -1,9 +1,8 @@
-local ft = vim.filetype
-if not ft then
+if not vim.filetype then
   return
 end
 
-ft.add({
+vim.filetype.add({
   pattern = {
     [".*#!.*bash.*"] = "bash",
     [".*#!.*zsh.*"] = "zsh",

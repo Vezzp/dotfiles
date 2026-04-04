@@ -4,7 +4,7 @@ return {
   version = false,
   dependencies = {
     "hrsh7th/cmp-buffer",
-    "hrsh7th/cmp-path", -- source for file system paths
+    "hrsh7th/cmp-path",
     {
       "L3MON4D3/LuaSnip",
       -- follow latest release.
@@ -12,9 +12,9 @@ return {
       -- install jsregexp (optional!).
       build = "make install_jsregexp",
     },
-    "saadparwaiz1/cmp_luasnip", -- for autocompletion
-    "rafamadriz/friendly-snippets", -- useful snippets
-    "onsails/lspkind.nvim", -- vs-code like pictograms
+    "saadparwaiz1/cmp_luasnip",
+    "rafamadriz/friendly-snippets",
+    "onsails/lspkind.nvim",
   },
   config = function()
     local cmp = require("cmp")
@@ -23,7 +23,6 @@ return {
 
     local lspkind = require("lspkind")
 
-    -- loads vscode style snippets from installed plugins (e.g. friendly-snippets)
     require("luasnip.loaders.from_vscode").lazy_load()
 
     cmp.setup({
@@ -37,8 +36,8 @@ return {
       },
 
       mapping = cmp.mapping.preset.insert({
-        ["<C-k>"] = cmp.mapping.select_prev_item(), -- previous suggestion
-        ["<C-j>"] = cmp.mapping.select_next_item(), -- next suggestion
+        ["<C-k>"] = cmp.mapping.select_prev_item(),
+        ["<C-j>"] = cmp.mapping.select_next_item(),
         ["<C-b>"] = cmp.mapping.scroll_docs(-4),
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-Space>"] = cmp.mapping.complete(), -- show completion suggestions
