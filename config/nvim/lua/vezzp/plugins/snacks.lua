@@ -8,8 +8,8 @@ return {
       win = {
         style = "input",
         relative = "editor",
-        row = 0.5,
-        col = 0.5,
+        row = false,
+        col = false,
       },
     },
     picker = {
