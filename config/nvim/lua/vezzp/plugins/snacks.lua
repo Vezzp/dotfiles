@@ -17,20 +17,4 @@ return {
       ui_select = true,
     },
   },
-  config = function(_, opts)
-    require("snacks").setup(opts)
-
-    local group = vim.api.nvim_create_augroup("VezzpSnacksInput", { clear = true })
-    vim.api.nvim_create_autocmd("FileType", {
-      group = group,
-      pattern = "snacks_input",
-      callback = function()
-        vim.schedule(function()
-          if vim.bo.buftype == "prompt" then
-            vim.cmd("stopinsert")
-          end
-        end)
-      end,
-    })
-  end,
 }
