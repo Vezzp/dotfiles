@@ -12,6 +12,10 @@ return {
         col = 0.5,
       },
     },
+    picker = {
+      enabled = true,
+      ui_select = true,
+    },
   },
   config = function(_, opts)
     require("snacks").setup(opts)
