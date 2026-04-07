@@ -42,7 +42,6 @@ return {
       callback = function()
         if vim.treesitter.language.get_lang(vim.bo.filetype) then
           pcall(vim.treesitter.start)
-          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
         end
       end,
     })
