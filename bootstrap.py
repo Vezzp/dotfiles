@@ -133,7 +133,8 @@ def setup_essentials() -> None:
 @install_step
 def setup_tmux() -> None:
     pixi_install_packages("tmux")
-    tpm_home = Path.home().joinpath(".tmux/plugins/tpm")
+    tpm_home = USER_CONFIG_HOME.joinpath("tmux", "plugins", "tpm")
+    tpm_home.parent.mkdir(parents=True, exist_ok=True)
     if not tpm_home.is_dir():
         sh(["git", "clone", "-q", "https://github.com/tmux-plugins/tpm", str(tpm_home)])
 
@@ -144,7 +145,7 @@ def setup_tmux() -> None:
             env={
                 **os.environ,
                 "TMUX_PLUGIN_MANAGER_PATH": os.environ.get(
-                    "TMUX_PLUGIN_MANAGER_PATH", str(tpm_home.parent)
+                    "TMUX_PLUGIN_MANAGER_PATH", "{}{}".format(tpm_home.parent, os.sep)
                 ),
             },
             cwd=tpm_home,
