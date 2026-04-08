@@ -12,15 +12,15 @@ $directory\
 $git_branch\
 $git_status\
 $git_state\
-[ ](fg:yellow bg:green)\
+([ ](fg:yellow bg:green)\
 $pixi\
 $conda\
 $golang\
-$python\
-[ ](fg:green bg:sapphire)\
-$docker_context\
-[ ](fg:sapphire bg:lavender)\
-$time\
+$python)\
+([ ](fg:green bg:sapphire)\
+$docker_context)\
+([ ](fg:sapphire bg:lavender)\
+$time)\
 [ ](fg:lavender)
  ❯ 
 """
@@ -179,7 +179,7 @@ truncation_symbol = "…/"
 [docker_context]
 symbol = " "
 style = "bg:sapphire fg:crust"
-format = '[$symbol$context]($style) $path'
+format = '[$symbol$context]($style)'
 
 [git_branch]
 symbol = " "
@@ -194,6 +194,7 @@ format = '[$all_status$ahead_behind ]($style)'
 symbol = " "
 style = "bg:green fg:crust"
 format = '[$symbol($version) ]($style)'
+not_capable_style = "bg:green fg:red"
 
 [python]
 symbol = " "
