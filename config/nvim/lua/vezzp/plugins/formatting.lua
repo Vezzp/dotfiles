@@ -9,7 +9,7 @@ return {
         lua = { "stylua" },
         python = { "ruff_format" },
         sh = { "shfmt" },
-        toml = { "taplo" },
+        toml = { "tombi" },
         tex = { "tex-fmt" },
       },
       format_on_save = {
