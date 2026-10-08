@@ -50,7 +50,6 @@ return {
         { name = "luasnip" },
         { name = "buffer" },
         { name = "path" },
-        { name = "codeium" },
       }),
 
       -- configure lspkind for vs-code like pictograms in completion menu
