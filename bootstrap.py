@@ -6,10 +6,10 @@
 import argparse
 import contextlib
 import hashlib
+import inspect
 import io
 import os
 import platform
-import inspect
 import shutil
 import stat
 import subprocess
@@ -187,7 +187,14 @@ def setup_tmux() -> None:
     tpm_home.parent.mkdir(parents=True, exist_ok=True)
     if not tpm_home.is_dir():
         subprocess.check_call(
-            ["git", "clone", "-q", "https://github.com/tmux-plugins/tpm", str(tpm_home)]
+            [
+                str(PIXI_HOME.joinpath("bin", "git")),
+                "clone",
+                "-q",
+                "https://github.com/tmux-plugins/tpm",
+                str(tpm_home),
+            ],
+            env=installer_env(),
         )
 
     cmd_parts = ["bash", str(tpm_home.joinpath("bin", "install_plugins"))]
@@ -195,7 +202,7 @@ def setup_tmux() -> None:
         subprocess.check_call(
             cmd_parts,
             env={
-                **os.environ,
+                **installer_env(),
                 "TMUX_PLUGIN_MANAGER_PATH": os.environ.get(
                     "TMUX_PLUGIN_MANAGER_PATH", "{}{}".format(tpm_home.parent, os.sep)
                 ),
@@ -215,8 +222,18 @@ def setup_herdr() -> None:
     """Install herdr workflow plugins used by the nvim navigation setup."""
     pixi_install_packages("herdr")
     try:
+        # Absolute path: pixi-installed binaries are not guaranteed to be on
+        # PATH, and Python resolves command names against the parent PATH
+        # even when env= is passed.
         subprocess.check_call(
-            ["herdr", "plugin", "install", "paulbkim-dev/vim-herdr-navigation", "-y"]
+            [
+                str(PIXI_HOME.joinpath("bin", "herdr")),
+                "plugin",
+                "install",
+                "paulbkim-dev/vim-herdr-navigation",
+                "-y",
+            ],
+            env=installer_env(),
         )
     except Exception:
         warnings.warn(
@@ -310,6 +327,23 @@ def pixi_install_packages(*packages: str) -> None:
     if not PIXI_EXE.exists():
         raise RuntimeError("pixi was not installed properly")
     subprocess.check_call([str(PIXI_EXE), "global", "install", "-q", *packages])
+
+
+def installer_env() -> "dict[str, str]":
+    pixi_bin = str(PIXI_HOME.joinpath("bin"))
+    path_parts = os.environ.get("PATH", os.defpath).split(os.pathsep)
+    env_path = (
+        os.pathsep.join([pixi_bin, *path_parts])
+        if pixi_bin not in path_parts
+        else os.environ.get("PATH", os.defpath)
+    )
+    return {
+        **os.environ,
+        "PATH": env_path,
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "safe.directory",
+        "GIT_CONFIG_VALUE_0": "*",
+    }
 
 
 def get_repo_user_sub_config_symlinks() -> "list[tuple[Path, Path]]":
