@@ -2,9 +2,9 @@
 
 # https://macos-defaults.com/
 
-echo -n "Setting up macOS ... "
+set -euo pipefail
 
-set -e
+echo -n "Setting up macOS ... "
 
 osascript -e 'tell application "System Preferences" to quit'
 
@@ -90,7 +90,7 @@ defaults write com.apple.AppleMultitouchTrackpad "Clicking" -bool "true"
 defaults write NSGlobalDomain com.apple.trackpad.scaling -int 3
 
 # ==========
-# Accessability
+# Accessibility
 # ==========
 
 defaults write com.apple.Accessibility "ReduceMotionEnabled" -bool "true"
@@ -115,14 +115,14 @@ defaults write NSGlobalDomain "NSAutomaticDashSubstitutionEnabled" -bool "false"
 defaults write NSGlobalDomain "NSAutomaticPeriodSubstitutionEnabled" -bool "false"
 
 # ==========
-# Text Edit
+# Language Switcher
 # ==========
 
 # Use pre-Sonoma language switcher pop up
 # https://apple.stackexchange.com/a/468286
 defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0
 
-killall Dock
-killall Finder
+killall Dock 2>/dev/null || true
+killall Finder 2>/dev/null || true
 
 echo "Done"
