@@ -2,18 +2,23 @@
 
 # ruff: noqa: UP032, T201, B028
 # pyright: reportAny=false, reportUnusedCallResult=false, reportExplicitAny=false
+# Minimum supported Python: 3.6 (compat shims: unlink_missing_ok, tarfile filter fallback)
 import argparse
-import functools
+import contextlib
+import hashlib
 import io
 import os
 import platform
+import inspect
 import shutil
 import stat
 import subprocess
+import tarfile
 import tempfile
+import urllib.request
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, get_type_hints
+from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
@@ -43,6 +48,14 @@ PIXI_EXE = Path(
     os.environ.get("PIXI_EXE", shutil.which("pixi") or PIXI_HOME.joinpath("bin", "pixi"))
 )
 
+PIXI_RELEASE_URL = "https://github.com/prefix-dev/pixi/releases/latest/download/{}"
+PIXI_ASSETS = {
+    ("Darwin", "arm64"): "pixi-aarch64-apple-darwin.tar.gz",
+    ("Darwin", "x86_64"): "pixi-x86_64-apple-darwin.tar.gz",
+    ("Linux", "x86_64"): "pixi-x86_64-unknown-linux-musl.tar.gz",
+    ("Linux", "aarch64"): "pixi-aarch64-unknown-linux-musl.tar.gz",
+}
+
 INSTALL_STEPS: "list[Callable[..., Any]]" = []
 UNINSTALL_STEPS: "list[Callable[..., Any]]" = []
 
@@ -59,9 +72,6 @@ def uninstall_step(fn: "Callable[_P, _R]") -> "Callable[_P, _R]":
     return fn
 
 
-sh = functools.partial(subprocess.check_call)
-
-
 # ----------
 # Steps
 # ----------
@@ -71,7 +81,7 @@ sh = functools.partial(subprocess.check_call)
 def update_config_symlinks() -> None:
     """Update symlinks from repo config items to user config items."""
     for repo_sub_config_path, user_sub_config_path in get_repo_user_sub_config_symlinks():
-        user_sub_config_path.unlink(missing_ok=True)
+        unlink_missing_ok(user_sub_config_path)
         user_sub_config_path.symlink_to(
             repo_sub_config_path,
             target_is_directory=repo_sub_config_path.is_dir(),
@@ -82,30 +92,70 @@ def update_config_symlinks() -> None:
 def drop_config_symlinks():
     """Drop symlinks from repo config items to user config items."""
     for _, user_sub_config_path in get_repo_user_sub_config_symlinks():
-        user_sub_config_path.unlink(missing_ok=True)
+        unlink_missing_ok(user_sub_config_path)
+
+
+def pixi_sha256_of(path: Path) -> str:
+    hasher = hashlib.sha256()
+    with path.open("rb") as fin:
+        for chunk in iter(lambda: fin.read(1 << 20), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
 @install_step
 def setup_pixi() -> None:
-    if not PIXI_EXE.exists():
-        curl_exe = shutil.which("curl")
-        if curl_exe is None:
-            raise RuntimeError("Cannot find curl")
-
-        with tempfile.NamedTemporaryFile("w", suffix=".sh") as fout:
-            sh(
-                [
-                    str(curl_exe),
-                    "-fsSL",
-                    "--output",
-                    fout.name,
-                    "https://pixi.sh/install.sh",
-                ]
-            )
-            sh(["bash", fout.name])
-
-    else:
+    if PIXI_EXE.exists():
         warnings.warn("Existing pixi installation found at {}".format(PIXI_EXE), stacklevel=0)
+        return
+
+    asset = PIXI_ASSETS.get((platform.system(), platform.machine().lower()))
+    if asset is None:
+        raise RuntimeError(
+            "Cannot download pixi for {} {}".format(platform.system(), platform.machine())
+        )
+
+    PIXI_EXE.parent.mkdir(parents=True, exist_ok=True)
+    url = PIXI_RELEASE_URL.format(asset)
+    print("Downloading pixi from {}".format(url))
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tar_path = Path(tmp_dir).joinpath(asset)
+        with urllib.request.urlopen(url) as resp, tar_path.open("wb") as fout:
+            shutil.copyfileobj(resp, fout)
+
+        with urllib.request.urlopen(PIXI_RELEASE_URL.format(asset + ".sha256")) as resp:
+            expected_sha256 = resp.read().decode().split()[0]
+
+        actual_sha256 = pixi_sha256_of(tar_path)
+        if actual_sha256 != expected_sha256:
+            raise RuntimeError(
+                "Checksum mismatch for {}: expected {}, got {}".format(
+                    asset, expected_sha256, actual_sha256
+                )
+            )
+
+        with tarfile.open(tar_path) as tar:
+            pixi_members = [
+                member
+                for member in tar.getmembers()
+                if member.isfile() and (member.name == "pixi" or member.name.endswith("/pixi"))
+            ]
+            if len(pixi_members) != 1:
+                raise RuntimeError("Cannot find pixi binary inside {}".format(asset))
+            try:
+                tar.extract(pixi_members[0], path=tmp_dir, filter="data")
+            except TypeError:
+                # Extraction filters are 3.12+ (PEP 706; backported to 3.8.17+,
+                # 3.9.17+, 3.10.12+, 3.11.4+). The tarball is sha256-verified
+                # above, so plain extraction is acceptable on older interpreters.
+                tar.extract(pixi_members[0], path=tmp_dir)
+            tmp_exe = Path(tmp_dir).joinpath(pixi_members[0].name)
+
+        tmp_exe.chmod(tmp_exe.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        # Smoke-test the binary directly; no shell involved.
+        subprocess.check_call([str(tmp_exe), "--version"])
+        shutil.move(str(tmp_exe), str(PIXI_EXE))
 
 
 @install_step
@@ -136,11 +186,13 @@ def setup_tmux() -> None:
     tpm_home = USER_CONFIG_HOME.joinpath("tmux", "plugins", "tpm")
     tpm_home.parent.mkdir(parents=True, exist_ok=True)
     if not tpm_home.is_dir():
-        sh(["git", "clone", "-q", "https://github.com/tmux-plugins/tpm", str(tpm_home)])
+        subprocess.check_call(
+            ["git", "clone", "-q", "https://github.com/tmux-plugins/tpm", str(tpm_home)]
+        )
 
     cmd_parts = ["bash", str(tpm_home.joinpath("bin", "install_plugins"))]
     try:
-        sh(
+        subprocess.check_call(
             cmd_parts,
             env={
                 **os.environ,
@@ -155,6 +207,21 @@ def setup_tmux() -> None:
             "Tmux plugin installation finished with error, try running {} manually".format(
                 " ".join(cmd_parts)
             )
+        )
+
+
+@install_step
+def setup_herdr() -> None:
+    """Install herdr workflow plugins used by the nvim navigation setup."""
+    pixi_install_packages("herdr")
+    try:
+        subprocess.check_call(
+            ["herdr", "plugin", "install", "paulbkim-dev/vim-herdr-navigation", "-y"]
+        )
+    except Exception:
+        warnings.warn(
+            "herdr plugin install failed; run "
+            "`herdr plugin install paulbkim-dev/vim-herdr-navigation -y` manually"
         )
 
 
@@ -194,7 +261,7 @@ def install(guess_shell: bool) -> None:
     print("Installing dotfiles ...")
 
     if platform.system() == "Darwin":
-        sh(["bash", "macos/setup"])
+        subprocess.check_call(["bash", "macos/setup"])
 
     # Make files in REPO_BIN executable for everyone, chmod +x.
     for exe_path in REPO_BIN.iterdir():
@@ -223,7 +290,7 @@ def uninstall(guess_shell: bool) -> None:
         drop_line_from_file(shell_rc, RC_SOURCE_COMMAND)
         print("Updated {}".format(shell_rc))
 
-    for uninstall_step_fn in INSTALL_STEPS:
+    for uninstall_step_fn in UNINSTALL_STEPS:
         uninstall_step_fn()
 
 
@@ -232,11 +299,17 @@ def uninstall(guess_shell: bool) -> None:
 # ----------
 
 
+def unlink_missing_ok(path: Path) -> None:
+    """Path.unlink(missing_ok=True) equivalent, available since Python 3.8 only."""
+    with contextlib.suppress(FileNotFoundError):
+        path.unlink()
+
+
 def pixi_install_packages(*packages: str) -> None:
     assert len(packages) != 0
     if not PIXI_EXE.exists():
         raise RuntimeError("pixi was not installed properly")
-    sh([str(PIXI_EXE), "global", "install", "-q", *packages])
+    subprocess.check_call([str(PIXI_EXE), "global", "install", "-q", *packages])
 
 
 def get_repo_user_sub_config_symlinks() -> "list[tuple[Path, Path]]":
@@ -276,12 +349,13 @@ def drop_line_from_file(path: Path, line: str) -> None:
     line = line.strip()
     builder = io.StringIO()
     line_found = False
-    for line_ in map(str.strip, path.open().readlines()):
-        if line_ == line:
-            line_found = True
-        else:
-            builder.write(line_)
-            builder.write("\n")
+    with path.open() as fin:
+        for line_ in map(str.strip, fin.readlines()):
+            if line_ == line:
+                line_found = True
+            else:
+                builder.write(line_)
+                builder.write("\n")
 
     if not line_found:
         return
@@ -347,5 +421,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.handler(
-        **{key: getattr(args, key) for key in get_type_hints(args.handler) if key != "return"}
+        **{key: getattr(args, key) for key in inspect.signature(args.handler).parameters}
     )
