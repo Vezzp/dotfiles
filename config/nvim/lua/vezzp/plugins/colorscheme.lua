@@ -11,16 +11,13 @@ return {
         dark = "frappe",
       },
       integrations = {
-        cmp = true,
+        blink_cmp = true,
         gitsigns = true,
         treesitter = true,
-        harpoon = true,
-        telescope = true,
+        snacks = true,
         mason = true,
         noice = true,
-        notify = true,
         which_key = true,
-        fidget = true,
         nvimtree = true,
       },
     })

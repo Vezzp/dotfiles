@@ -2,7 +2,6 @@ return {
   "neovim/nvim-lspconfig",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
     { "antosha417/nvim-lsp-file-operations", config = true },
     {
       "folke/lazydev.nvim",
@@ -30,19 +29,27 @@ return {
         local opts = { buffer = ev.buf, silent = false }
 
         opts.desc = "Show LSP References"
-        keymap.set("n", "<leader>cR", "<cmd>Telescope lsp_references<CR>", opts)
+        keymap.set("n", "<leader>cR", function()
+          Snacks.picker.lsp_references()
+        end, opts)
 
         opts.desc = "Go to Declaration"
         keymap.set("n", "<leader>cD", vim.lsp.buf.declaration, opts)
 
         opts.desc = "Go to Definition"
-        keymap.set("n", "<leader>cd", "<cmd>Telescope lsp_definitions<CR>", opts)
+        keymap.set("n", "<leader>cd", function()
+          Snacks.picker.lsp_definitions()
+        end, opts)
 
         opts.desc = "Show LSP Implementations"
-        keymap.set("n", "<leader>ci", "<cmd>Telescope lsp_implementations<CR>", opts)
+        keymap.set("n", "<leader>ci", function()
+          Snacks.picker.lsp_implementations()
+        end, opts)
 
         opts.desc = "Go to Type Definition"
-        keymap.set("n", "<leader>ct", "<cmd>Telescope lsp_type_definitions<CR>", opts)
+        keymap.set("n", "<leader>ct", function()
+          Snacks.picker.lsp_type_definitions()
+        end, opts)
 
         opts.desc = "Show Available Actions"
         keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
@@ -54,7 +61,9 @@ return {
         keymap.set("n", "<leader>ch", vim.lsp.buf.hover, opts)
 
         opts.desc = "Show Buffer Diagnostics"
-        keymap.set("n", "<leader>dd", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
+        keymap.set("n", "<leader>dd", function()
+          Snacks.picker.diagnostics({ filter = { buf = true } })
+        end, opts)
 
         opts.desc = "Show Line Diagnostics"
         keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
@@ -71,7 +80,7 @@ return {
       end,
     })
 
-    local capabilities = require("cmp_nvim_lsp").default_capabilities()
+    local capabilities = require("blink.cmp").get_lsp_capabilities()
     vim.lsp.config("*", { capabilities = capabilities })
 
     vim.lsp.enable("buf_ls")
