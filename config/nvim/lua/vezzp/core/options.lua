@@ -1,5 +1,3 @@
-vim.cmd("let g:netrw_liststyle = 3")
-
 local opt = vim.opt
 
 opt.relativenumber = true
@@ -36,6 +34,11 @@ opt.clipboard:append("unnamedplus")
 opt.splitright = true
 opt.splitbelow = true
 
+-- hide the command-line row: the statusline sits flush at the bottom, and
+-- the cmdline expands as an overlay over it only while typing a command
+-- (snacks.input already floats all prompts)
+opt.cmdheight = 0
+
 opt.termsync = true
 
 if
@@ -54,3 +57,26 @@ then
     },
   }
 end
+
+-- herdr-style gaps between windows: blank separator cells showing the
+-- terminal background instead of drawn lines. Neovim's gap is fixed at one
+-- cell wide; there is no native way to make it wider.
+opt.fillchars:append({
+  vert = " ",
+  vertleft = " ",
+  vertright = " ",
+  verthoriz = " ",
+  horiz = " ",
+  horizup = " ",
+  horizdown = " ",
+  eob = " ",
+  foldsep = " ",
+})
+local function clear_win_separator_bg()
+  vim.api.nvim_set_hl(0, "WinSeparator", { bg = "NONE" })
+end
+clear_win_separator_bg()
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("vezzp-win-separator-gap", { clear = true }),
+  callback = clear_win_separator_bg,
+})
