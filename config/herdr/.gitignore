@@ -1,0 +1,5 @@
+# Herdr keeps its runtime state (logs, sockets, session.json, …) in this
+# directory next to the config. Track only the managed config file.
+*
+!.gitignore
+!config.toml

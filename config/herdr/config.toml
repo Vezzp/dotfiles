@@ -1,0 +1,149 @@
+# herdr configuration — migrated from tmux (config/tmux/tmux.conf)
+# Place at ~/.config/herdr/config.toml (symlinked there by bootstrap.py).
+#
+# Migration notes:
+# - Session persistence (tmux-resurrect / tmux-continuum) is built in: panes
+#   survive detach, terminal close, and server restarts and are restored
+#   automatically. pane_history below additionally keeps scrollback text
+#   across full server restarts (the resurrect capture-pane-contents analog).
+# - escape-time / focus-events / default-terminal have no equivalent; Herdr
+#   handles those internally.
+# - Herdr has no send-prefix action, so with ctrl+s as prefix, a literal
+#   ctrl+s can no longer be typed into programs inside panes.
+# - Press prefix+? at any time to see every active binding.
+# - Copy mode is prefix+[, vi-style by default: v/Space start a selection,
+#   y/Enter copy it, / and ? search, q/Esc leave.
+
+# tmux: set -g prefix C-s / unbind C-b
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+# tmux: @catppuccin_flavor "frappe" — Herdr's built-in catppuccin theme is
+# mocha-flavored, so override its tokens with the official frappe palette.
+# Backgrounds follow the host terminal (Ghostty runs Catppuccin Frappe with
+# blur), which is why panel/sidebar bg are "reset" rather than fixed colors.
+[theme.custom]
+accent = "#ca9ee6"        # mauve
+mauve = "#ca9ee6"
+red = "#e78284"
+peach = "#ef9f76"
+yellow = "#e5c890"
+green = "#a6d189"
+teal = "#81c8be"
+blue = "#8caaee"
+text = "#c6d0f5"
+subtext0 = "#a5adce"
+overlay0 = "#737994"
+overlay1 = "#838ba7"
+surface0 = "#414559"
+surface1 = "#51576d"
+active_row_bg = "#414559"
+selection_bg = "#414559"
+panel_bg = "reset"
+sidebar_bg = "reset"
+
+[keys]
+prefix = "ctrl+s"
+
+# tmux: bind | split-window -h -c "#{pane_current_path}"
+split_vertical = ["prefix+|", "prefix+v"]
+
+# tmux: bind - split-window -v -c "#{pane_current_path}"
+# (Herdr's default for this is already prefix+minus; new panes inherit the
+# source pane's cwd via the default terminal.new_cwd = "follow".)
+split_horizontal = "prefix+minus"
+
+# tmux: bind r source ~/.config/tmux/tmux.conf
+# Resize mode moves to shift+r to keep r for reload.
+reload_config = "prefix+r"
+resize_mode = "prefix+shift+r"
+
+# tmux: bind -r m resize-pane -Z
+zoom = ["prefix+m", "prefix+z"]
+
+# Pane cycling on tab/shift+tab disabled — navigation is covered by the
+# zle widgets, nvim dispatcher, and ctrl+alt chords.
+cycle_pane_next = ""
+cycle_pane_previous = ""
+
+# Tab key = the one tab combination (herdr binds prefix + exactly one key;
+# chains like prefix+tab+x are rejected by the parser). Create stays on
+# prefix+c (prompts for a name), close on prefix+shift+x.
+next_tab = "prefix+tab"
+previous_tab = "prefix+shift+tab"
+
+# tmux: prefix d detach-client (no prefix+q binding)
+detach = "prefix+d"
+
+# tmux: bind -r C-h/C-j/C-k/C-l select-pane -L/-D/-U/-R (+ vim-tmux-navigator)
+# The ctrl+alt chords are the TUI-safe prefix-free family. The plain
+# ctrl+h/j/k/l chords are owned by the vim-herdr-navigation plugin (below),
+# which — exactly like tmux's root binds — shadows readline's ctrl+l (clear)
+# and ctrl+k (kill line) inside non-vim panes: the accepted tradeoff.
+focus_pane_left = ["prefix+h", "ctrl+alt+h"]
+focus_pane_down = ["prefix+j", "ctrl+alt+j"]
+focus_pane_up = ["prefix+k", "ctrl+alt+k"]
+focus_pane_right = ["prefix+l", "ctrl+alt+l"]
+
+# tmux: prefix w choose-window/tree — remapped to Herdr's native session
+# navigator (goto). The workspace picker takes its freed slot on prefix+g;
+# direct tab jumps stay on prefix+1..9.
+goto = "prefix+w"
+workspace_picker = "prefix+g"
+
+# tmux default `;` = last-pane (plus vim-tmux-navigator's C-\ inside nvim).
+# Herdr's CLI has no last-pane focus, so the nvim C-\ handoff can't reach it —
+# this TUI binding is the herdr-side replacement.
+last_pane = "prefix+;"
+
+# tmux display-popup-style floating console: transient scratch shell overlay,
+# closes when the shell exits. (Herdr has no in-app tmux-style `prefix :`
+# command prompt; CLI + right-click menus + this popup cover that ground.)
+[[keys.command]]
+key = "prefix+t"
+type = "popup"
+command = "exec \"${SHELL:-sh}\""
+description = "open scratch console"
+width = "80%"
+height = "80%"
+
+# vim-herdr-navigation (github.com/paulbkim-dev/vim-herdr-navigation): plain
+# ctrl+h/j/k/l move panes herdr-wide and forward into Vim/Neovim when it is
+# the foreground pane — the herdr mirror of tmux's root binds. The nvim side
+# is wired in config/nvim/lua/vezzp/plugins/vim-herdr-navigator.lua. Keep these
+# [[keys.command]] blocks at the end of the file: in TOML, a table header
+# switches the current table, so plain keys after it would be swallowed.
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "vim-herdr-navigation.down"
+description = "navigate down (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "vim-herdr-navigation.up"
+description = "navigate up (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "navigate right (vim/herdr)"
+
+# tmux: set -g mouse on, tmux-yank clipboard selection
+# Defaults cover these: ui.mouse_capture = true, ui.copy_on_select = true.
+# tmux: set -g status-position top — default: ui.tab_bar_position = "top".
+#
+# tmux: @continuum-restore 'on' — Herdr restores layout, panes, processes,
+# and agent sessions after a full server restart by default. The optional
+# experimental.pane_history (replays recent pane screen text into restored
+# panes) is left off — agent panes resume via native session restore anyway.
