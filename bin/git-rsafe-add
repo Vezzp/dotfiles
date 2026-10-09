@@ -1,13 +1,45 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
+"""Recursively mark git repositories under a directory as git safe.directory."""
 
-if [ -z ${1} ]; then
-  echo Please, provide a directory
-  exit 1
-fi
+# pyright: reportAny=false, reportUnusedCallResult=false
 
-if [ -f ${1} ]; then
-  echo Provided directory ${1} does not exist
-  exit 1
-fi
+import argparse
+import itertools
+import os
+import subprocess
+import sys
+from pathlib import Path
 
-find $(realpath -s "${1}") -name '.git' -exec bash -c 'git config --global --add safe.directory $(dirname ${0%})' {} \;
+
+def add_safe_directory(repo_path: "Path") -> "None":
+    """Add one repository to the global safe.directory list, skipping on failure."""
+    try:
+        subprocess.check_call(
+            ["git", "config", "--global", "--add", "safe.directory", str(repo_path)]
+        )
+    except subprocess.CalledProcessError as exc:
+        sys.stderr.write(
+            f"Cannot mark {repo_path} as safe.directory ({exc.returncode}), skipping ...\n"
+        )
+
+
+def main() -> "None":
+    parser = argparse.ArgumentParser(
+        description="Recursively add git repositories under a directory to git safe.directory"
+    )
+    parser.add_argument("directory", help="Directory to scan recursively for .git entries")
+    args = parser.parse_args()
+
+    scan_root = Path(args.directory)
+    if not scan_root.is_dir():
+        sys.exit(f"Provided directory {args.directory} does not exist")
+    scan_root = scan_root.resolve()
+
+    for dirpath, dirnames, filenames in os.walk(scan_root):
+        for entry in itertools.chain(dirnames, filenames):
+            if entry == ".git":
+                add_safe_directory((Path(dirpath) / entry).parent)
+
+
+if __name__ == "__main__":
+    main()
