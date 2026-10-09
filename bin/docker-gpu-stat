@@ -98,7 +98,7 @@ def parse_command_format(
         [*args, query_arg_fmt(",".join(map(col_arg_fmt, typ.__annotations__)))],
     ).decode()
     return [
-        typ(dict(zip(typ.__annotations__, map(str.strip, line.split(",")), strict=False)))
+        typ(dict(zip(typ.__annotations__, map(str.strip, line.split(",")))))  # noqa: B905 (strict= is 3.10+; False is the default)
         for line in itertools.islice(command_output.splitlines(), int(header), None)
     ]
 
@@ -148,7 +148,7 @@ def main() -> "None":
             )
         )
 
-    @functools.lru_cache
+    @functools.lru_cache()  # noqa: UP011 (bare form is 3.8+; parens work everywhere)
     def construct_col_formatter(width: int) -> "Formatter":
         def formatter(text: str) -> str:
             if len(text) > width:
