@@ -29,6 +29,7 @@ return {
       { "<leader><tab>", desc = "+tabs" },
       { "<leader>c", desc = "+code" },
       { "<leader>s", desc = "+search" },
+      { "<leader>t", desc = "+theme" },
       { "<leader>d", desc = "+diagnostics" },
       { "<leader>q", desc = "+quit/session" },
       { "<leader>r", desc = "+rename" },
