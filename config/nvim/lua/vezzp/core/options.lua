@@ -23,7 +23,9 @@ opt.smartcase = true
 opt.cursorline = true
 
 opt.termguicolors = true
-opt.background = "dark"
+-- 'background' is intentionally NOT set here: Neovim detects it from the
+-- terminal (OSC 11) before user config, so catppuccin's `flavour = "auto"`
+-- starts in the right flavour. Default is "dark" anyway.
 opt.signcolumn = "yes"
 
 opt.backspace = "indent,eol,start"
