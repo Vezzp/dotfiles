@@ -68,21 +68,14 @@ if vim.lsp.inlay_hint then
   end, { desc = "Toggle Inlay Hints" })
 end
 
-vim.keymap.set("n", "<leader>tl", function()
-  vim.o.background = "light"
-end, { desc = "Switch to Light Theme" })
-
-vim.keymap.set("n", "<leader>td", function()
-  vim.o.background = "dark"
-end, { desc = "Switch to Dark Theme" })
-
-vim.keymap.set("n", "<leader>tt", function()
-  if vim.o.background == "dark" then
-    vim.o.background = "light"
-  else
-    vim.o.background = "dark"
-  end
-end, { desc = "Toggle Inverted Theme" })
+-- Light/dark follows the terminal on its own: Neovim applies the OSC 11 reply
+-- at startup and re-queries it on every DEC mode 2031 report (OS appearance
+-- change), and that reloads the colorscheme (catppuccin `flavour = "auto"`).
+-- <leader>ta just re-syncs on demand; the others force a mode for the session.
+vim.keymap.set("n", "<leader>ta", function() vim.api.nvim_ui_send("\27]11;?\7") end, { desc = "Auto Theme (follow system)" })
+vim.keymap.set("n", "<leader>tl", function() vim.o.background = "light" end, { desc = "Switch to Light Theme" })
+vim.keymap.set("n", "<leader>td", function() vim.o.background = "dark" end, { desc = "Switch to Dark Theme" })
+vim.keymap.set("n", "<leader>tt", function() vim.o.background = vim.o.background == "dark" and "light" or "dark" end, { desc = "Toggle Inverted Theme" })
 
 -- pickers (snacks.picker)
 keymap.set("n", "<leader>ff", function()
