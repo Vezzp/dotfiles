@@ -1,7 +1,7 @@
 __SHELL_NAME=$(basename $SHELL)
 
 for vsc in code code-insiders; do
-  if [ ! -z $(which $vsc) ]; then
+  if command -v $vsc >/dev/null 2>&1; then
     alias vsc=$vsc
     break
   fi
@@ -14,7 +14,7 @@ zsh)
   ;;
 esac
 
-if [ ! -z $(which lsd) ]; then
+if command -v lsd >/dev/null 2>&1; then
   alias ls=lsd
   alias l='ls -l'
   alias la='ls -a'
@@ -22,7 +22,7 @@ if [ ! -z $(which lsd) ]; then
   alias lt='ls --tree'
 fi
 
-if [ ! -z $(which zoxide) ]; then
+if command -v zoxide >/dev/null 2>&1; then
   case $__SHELL_NAME in
   bash | zsh)
     eval "$(zoxide init $__SHELL_NAME)"
@@ -30,7 +30,7 @@ if [ ! -z $(which zoxide) ]; then
   esac
 fi
 
-if [ ! -z $(which bat) ]; then
+if command -v bat >/dev/null 2>&1; then
   alias cat='bat --paging=never --decorations=never'
 fi
 
@@ -52,7 +52,7 @@ if [ -d "${PIXI_HOME}/envs/nodejs/bin" ]; then
   export PATH="${PATH}:${PIXI_HOME}/envs/nodejs/bin"
 fi
 
-if [ ! -z $(which starship) ]; then
+if command -v starship >/dev/null 2>&1; then
   if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
     case $__SHELL_NAME in
     bash | zsh)
