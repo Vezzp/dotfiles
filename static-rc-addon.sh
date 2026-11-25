@@ -1,8 +1,9 @@
-__SHELL_NAME=$(basename $SHELL)
+__SHELL_NAME=${SHELL##*/}
+__SHELL_NAME=${__SHELL_NAME:-sh}
 
 for vsc in code code-insiders; do
-  if command -v $vsc >/dev/null 2>&1; then
-    alias vsc=$vsc
+  if command -v "$vsc" >/dev/null 2>&1; then
+    alias vsc="$vsc"
     break
   fi
 done
@@ -25,7 +26,7 @@ fi
 if command -v zoxide >/dev/null 2>&1; then
   case $__SHELL_NAME in
   bash | zsh)
-    eval "$(zoxide init $__SHELL_NAME)"
+    eval "$(zoxide init "$__SHELL_NAME")"
     ;;
   esac
 fi
@@ -36,14 +37,14 @@ fi
 
 case $__SHELL_NAME in
 bash | zsh)
-  eval "$(pixi completion --shell $__SHELL_NAME)"
+  eval "$(pixi completion --shell "$__SHELL_NAME")"
   ;;
 esac
 
 case $__SHELL_NAME in
 bash)
-  if [ -f $PIXI_HOME/envs/bash-completion/share/bash-completion/bash_completion ]; then
-    . $PIXI_HOME/envs/bash-completion/share/bash-completion/bash_completion
+  if [ -f "${PIXI_HOME}/envs/bash-completion/share/bash-completion/bash_completion" ]; then
+    . "${PIXI_HOME}/envs/bash-completion/share/bash-completion/bash_completion"
   fi
   ;;
 esac
@@ -56,7 +57,7 @@ if command -v starship >/dev/null 2>&1; then
   if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
     case $__SHELL_NAME in
     bash | zsh)
-      eval "$(starship init $__SHELL_NAME)"
+      eval "$(starship init "$__SHELL_NAME")"
       ;;
     esac
   fi
