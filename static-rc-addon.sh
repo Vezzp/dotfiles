@@ -54,7 +54,7 @@ if [ -d "${PIXI_HOME}/envs/nodejs/bin" ]; then
 fi
 
 if command -v starship >/dev/null 2>&1; then
-  if [[ ${TERM_PROGRAM} != "WarpTerminal" ]]; then
+  if [ "${TERM_PROGRAM:-}" != WarpTerminal ]; then
     case $__SHELL_NAME in
     bash | zsh)
       eval "$(starship init "$__SHELL_NAME")"
